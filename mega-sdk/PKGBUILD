@@ -10,7 +10,6 @@ license=('BSD-2-Clause')
 depends=('c-ares'
          'crypto++'
          'curl'
-         'freeimage'
          'fuse'
          'libsodium'
          'libuv'
@@ -18,13 +17,20 @@ depends=('c-ares'
          'readline'
          'sqlite'
          'zlib')
+makedepends=(swig)
 source=("https://github.com/meganz/sdk/archive/v$pkgver.tar.gz")
-md5sums=('ab35fb43c6909d0cb35786781f227328')
+sha256sums=('0d2c0ce2964d3fcd234631f18c01eb2b53b6aece3079220d2a2b4ba535761ff5')
 
 build() {
   cd "sdk-$pkgver"
   ./autogen.sh
-  ./configure --prefix=/usr
+  ./configure \
+		--prefix=/usr \
+		--without-freeimage \
+		--disable-silent-rules \
+		--disable-examples \
+		--enable-python \
+		--with-python3
   make
 }
 
