@@ -1,0 +1,89 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+pkgname=mingw-w64-wpcap
+pkgver=4.1.3
+_patchver=68a0d1315cfc1157bf9334790b64fbe1ec58cfde
+pkgrel=1
+pkgdesc='MinGW-w64 winpcap library'
+arch=('any')
+url="http://www.winpcap.org/"
+license=('BSD')
+depends=('mingw-w64-crt')
+makedepends=('mingw-w64-binutils'
+             'mingw-w64-gcc'
+             'dos2unix')
+options=('!strip' '!buildflags' 'staticlibs')
+source=("http://www.winpcap.org/install/bin/WpcapSrc_${pkgver//./_}.zip"
+        "https://src.fedoraproject.org/rpms/mingw-wpcap/raw/${_patchver}/f/winpcap-mingw-w64-compatibility.patch"
+        "https://src.fedoraproject.org/rpms/mingw-wpcap/raw/${_patchver}/f/wpcap-w2k.patch"
+        "https://src.fedoraproject.org/rpms/mingw-wpcap/raw/${_patchver}/f/wpcap.patch")
+sha256sums=('346a93f6b375ac4c1add5c8c7178498f1feed4172fb33383474a91b48ec6633a'
+            '4a33a56f2ffc25f343cf7e7f867db71f914e2be4dfc92fa8eaf6a26852acdcbd'
+            'e8a26b7c8046bc77e30eac1952b66381455e29e93b32213e5e2b2a646959f770'
+            'ffa79142462f34ba431d373e1909753394a053dbd88e91fb4b82d6da5bb8e506')
+
+_targets=(i686-w64-mingw32 x86_64-w64-mingw32)
+
+prepare() {
+  cd winpcap
+
+	patch -p0 -i "$srcdir/wpcap.patch"
+	patch -p0 -i "$srcdir/winpcap-mingw-w64-compatibility.patch"
+
+  find . -type f -exec dos2unix {} +
+
+  mv wpcap/libpcap/Win32/Include/{ip6,IP6}_misc.h
+
+  patch -p0 -i "$srcdir/wpcap-w2k.patch"
+
+  find . -name GNUmakefile -exec sed -i 's/-mno-cygwin//' {} \;
+
+  sed -i 's;../libpcap/Win32/Src/getaddrinfo.o;;' wpcap/PRJ/GNUmakefile
+
+  for _target in ${_targets[@]}; do
+    rm -rf "$srcdir/winpcap-${_target}"
+    cp -rT "$srcdir/winpcap" "$srcdir/winpcap-${_target}"
+  done
+}
+
+build() {
+  for _target in ${_targets[@]}; do
+    cd "$srcdir/winpcap-${_target}/packetNtx/Dll/Project"
+    make -f GNUmakefile CC=${_target}-gcc YACC=bison
+
+    cd "$srcdir/winpcap-${_target}/wpcap/PRJ"
+    make -f GNUmakefile CC=${_target}-gcc YACC=bison
+  done
+}
+
+package() {
+  install -d "$pkgdir/usr"
+
+  for _target in ${_targets[@]}; do
+    cd "$srcdir/winpcap-${_target}"
+
+    install -d "$pkgdir/usr/${_target}/bin"
+    install -m0644 packetNtx/Dll/Project/Packet.dll "$pkgdir/usr/${_target}/bin/packet.dll"
+    install -m0644 wpcap/PRJ/wpcap.dll "$pkgdir/usr/${_target}/bin/wpcap.dll"
+
+    install -d "$pkgdir/usr/${_target}/lib"
+    install -m0644 packetNtx/Dll/Project/libpacket.a "$pkgdir/usr/${_target}/lib/libpacket.dll.a"
+    install -m0644 packetNtx/Dll/Packet.def "$pkgdir/usr/${_target}/lib/packet.def"
+    install -m0644 wpcap/lib/libwpcap.a "$pkgdir/usr/${_target}/lib/libwpcap.dll.a"
+    install -m0644 wpcap/PRJ/WPCAP.DEF "$pkgdir/usr/${_target}/lib/wpcap.def"
+
+    find "$pkgdir/usr/${_target}" -name '*.dll' -exec ${_target}-strip --strip-unneeded {} +
+    find "$pkgdir/usr/${_target}" -name '*.a' -exec ${_target}-strip --strip-debug {} +
+
+    install -d "$pkgdir/usr/${_target}/include/wpcap"
+    install -m0644 wpcap/libpcap/*.h "$pkgdir/usr/${_target}/include/wpcap/"
+    install -m0644 wpcap/libpcap/Win32/Include/{bittypes,IP6_misc,Gnuc}.h "$pkgdir/usr/${_target}/include/wpcap/"
+    install -m0644 wpcap/Win32-Extensions/Win32-Extensions.h "$pkgdir/usr/${_target}/include/wpcap/"
+    install -m0644 Common/Packet32.h "$pkgdir/usr/${_target}/include/wpcap/"
+
+    install -d "$pkgdir/usr/${_target}/include/wpcap/pcap"
+    install -m0644 wpcap/libpcap/pcap/*.h "$pkgdir/usr/${_target}/include/wpcap/pcap/"
+  done
+
+  install -d "$pkgdir/usr/share/licenses/$pkgname"
+  install -m0644 "$srcdir/winpcap/wpcap/libpcap/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/"
+}
