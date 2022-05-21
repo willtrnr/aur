@@ -11,7 +11,7 @@ depends=('mingw-w64-crt')
 makedepends=('mingw-w64-binutils'
              'mingw-w64-gcc'
              'dos2unix')
-options=('!strip' '!buildflags' 'staticlibs')
+options=('!strip' 'staticlibs' '!buildflags')
 source=("http://www.winpcap.org/install/bin/WpcapSrc_${pkgver//./_}.zip"
         "https://src.fedoraproject.org/rpms/mingw-wpcap/raw/${_patchver}/f/winpcap-mingw-w64-compatibility.patch"
         "https://src.fedoraproject.org/rpms/mingw-wpcap/raw/${_patchver}/f/wpcap-w2k.patch"
