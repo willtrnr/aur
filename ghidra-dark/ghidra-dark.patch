@@ -1,0 +1,1525 @@
+From 962d4dda01013ff9b39d036afb6c381341ce4681 Mon Sep 17 00:00:00 2001
+From: "Yu-Cheng (Henry) Huang" <Happyholic1203@gmail.com>
+Date: Sat, 9 Apr 2022 20:24:28 +0800
+Subject: [PATCH] Add dark mode using flatlaf
+
+---
+ .../src/main/java/ghidra/GhidraOptions.java   |  8 +-
+ .../AbstractCodeBrowserPlugin.java            |  9 ++-
+ .../codebrowser/ListingHighlightProvider.java | 13 ++--
+ .../MarkerServiceBackgroundColorModel.java    |  3 +-
+ .../core/interpreter/InterpreterPanel.java    |  5 +-
+ .../osgi/BundleStatusComponentProvider.java   |  7 +-
+ .../core/osgi/BundleStatusTableModel.java     | 11 +--
+ .../java/ghidra/app/util/PluginConstants.java |  6 +-
+ .../ghidra/app/util/bean/SetEquateDialog.java |  6 +-
+ .../PropertyBasedBackgroundColorModel.java    |  3 +-
+ .../app/util/viewer/options/OptionsGui.java   | 73 ++++++++++---------
+ .../framework/main/ConsoleTextPane.java       |  6 +-
+ .../java/ghidra/framework/main/InfoPanel.java |  6 +-
+ .../util/table/GhidraTableCellRenderer.java   |  5 ++
+ .../ByteViewerComponentProvider.java          | 13 ++--
+ .../core/byteviewer/ByteViewerPanel.java      |  5 +-
+ .../app/decompiler/DecompileOptions.java      | 23 +++---
+ .../core/functiongraph/graph/FGComponent.java |  3 +-
+ .../mvc/FunctionGraphOptions.java             | 15 ++--
+ .../fid/plugin/ActiveFidConfigureDialog.java  |  4 +-
+ .../graph/view/FcgComponent.java              |  3 +-
+ .../visualization/DefaultGraphDisplay.java    |  5 +-
+ .../plugin/core/diff/ProgramDiffPlugin.java   |  3 +-
+ Ghidra/Framework/Docking/Module.manifest      |  1 +
+ Ghidra/Framework/Docking/build.gradle         |  1 +
+ .../java/docking/framework/SplashScreen.java  |  4 +-
+ .../main/java/docking/help/HelpManager.java   |  7 +-
+ .../widgets/AbstractGCellRenderer.java        |  4 +
+ .../widgets/fieldpanel/FieldPanel.java        |  3 +-
+ .../fieldpanel/internal/PaintContext.java     | 16 ++--
+ .../filechooser/GhidraFileChooser.java        | 31 +++++---
+ .../widgets/table/GTableHeaderRenderer.java   |  3 +
+ .../widgets/textfield/HintTextField.java      |  9 ++-
+ .../ghidra/docking/util/ColorContext.java     | 53 ++++++++++++++
+ .../util/DockingWindowsLookAndFeelUtils.java  | 37 +++++++++-
+ .../viewer/options/VisualGraphOptions.java    |  3 +-
+ .../vertex/AbstractVisualVertexRenderer.java  |  3 +-
+ .../service/graph/GraphDisplayOptions.java    |  9 ++-
+ .../dialog/AbstractDetailsPanel.java          |  4 +-
+ .../plugintool/dialog/PluginDetailsPanel.java | 21 +++---
+ .../dialog/PluginManagerComponent.java        | 14 ++--
+ 41 files changed, 311 insertions(+), 147 deletions(-)
+ create mode 100644 Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/ColorContext.java
+
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/GhidraOptions.java b/Ghidra/Features/Base/src/main/java/ghidra/GhidraOptions.java
+index 476d3c14c1b..1dc92dc0bc9 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/GhidraOptions.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/GhidraOptions.java
+@@ -18,6 +18,7 @@
+ import java.awt.Color;
+ import java.awt.event.MouseEvent;
+ 
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.Options;
+ 
+ /**
+@@ -156,7 +157,7 @@ public interface GhidraOptions {
+ 
+ 	final String HIGHLIGHT_CURSOR_LINE_COLOR = "Cursor." + HIGHLIGHT_CURSOR_LINE_COLOR_OPTION_NAME;
+ 
+-	final Color DEFAULT_CURSOR_LINE_COLOR = new Color(232, 242, 254);
++	final Color DEFAULT_CURSOR_LINE_COLOR = ColorContext.CURSOR_LINE;
+ 
+ 	final String HIGHLIGHT_CURSOR_LINE_OPTION_NAME = "Highlight Cursor Line";
+ 
+@@ -190,10 +191,9 @@ public int getMouseEventID() {
+ 	// end cursor highlight
+ 
+ 	final String OPTION_SELECTION_COLOR = "Selection Colors.Selection Color";
+-	final Color DEFAULT_SELECTION_COLOR = new Color(180, 255, 180);
++	final Color DEFAULT_SELECTION_COLOR = ColorContext.SELECTION_SELECTION;
+ 
+ 	final String OPTION_HIGHLIGHT_COLOR = "Selection Colors.Highlight Color";
+-	final Color DEFAULT_HIGHLIGHT_COLOR = new Color(255, 255, 180);
++	final Color DEFAULT_HIGHLIGHT_COLOR = ColorContext.SELECTION_HIGHLIGHT;
+ 	final String APPLY_ENABLED = "apply.enabled";
+-
+ }
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/AbstractCodeBrowserPlugin.java b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/AbstractCodeBrowserPlugin.java
+index a2e47229dd4..a1da3623aae 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/AbstractCodeBrowserPlugin.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/AbstractCodeBrowserPlugin.java
+@@ -45,6 +45,7 @@
+ import ghidra.app.util.viewer.options.ListingDisplayOptionsEditor;
+ import ghidra.app.util.viewer.options.OptionsGui;
+ import ghidra.app.util.viewer.util.AddressIndexMap;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.model.*;
+ import ghidra.framework.options.*;
+ import ghidra.framework.plugintool.Plugin;
+@@ -554,9 +555,9 @@ private void initOptions(Options fieldOptions) {
+ 			GhidraOptions.DEFAULT_HIGHLIGHT_COLOR, helpLocation,
+ 			"The highlight color in the browser.");
+ 
+-		fieldOptions.registerOption(CURSOR_COLOR, Color.RED, helpLocation,
++		fieldOptions.registerOption(CURSOR_COLOR, ColorContext.CURSOR_FOCUSED, helpLocation,
+ 			"The color of the cursor in the browser.");
+-		fieldOptions.registerOption(UNFOCUSED_CURSOR_COLOR, Color.PINK, helpLocation,
++		fieldOptions.registerOption(UNFOCUSED_CURSOR_COLOR, ColorContext.CURSOR_UNFOCUSED, helpLocation,
+ 			"The color of the cursor in the browser when the browser does not have focus.");
+ 		fieldOptions.registerOption(BLINK_CURSOR, true, helpLocation,
+ 			"When selected, the cursor will blink when the containing window is focused.");
+@@ -588,10 +589,10 @@ private void initOptions(Options fieldOptions) {
+ 			highlightMarkers.setMarkerColor(color);
+ 		}
+ 
+-		color = fieldOptions.getColor(CURSOR_COLOR, Color.RED);
++		color = fieldOptions.getColor(CURSOR_COLOR, ColorContext.CURSOR_FOCUSED);
+ 		fieldPanel.setFocusedCursorColor(color);
+ 
+-		color = fieldOptions.getColor(UNFOCUSED_CURSOR_COLOR, Color.PINK);
++		color = fieldOptions.getColor(UNFOCUSED_CURSOR_COLOR, ColorContext.CURSOR_UNFOCUSED);
+ 		fieldPanel.setNonFocusCursorColor(color);
+ 
+ 		Boolean isBlinkCursor = fieldOptions.getBoolean(BLINK_CURSOR, true);
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/ListingHighlightProvider.java b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/ListingHighlightProvider.java
+index ec521a81594..1d65140b854 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/ListingHighlightProvider.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/ListingHighlightProvider.java
+@@ -35,6 +35,7 @@
+ import ghidra.app.services.ButtonPressedListener;
+ import ghidra.app.util.HighlightProvider;
+ import ghidra.app.util.viewer.field.*;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.OptionsChangeListener;
+ import ghidra.framework.options.ToolOptions;
+ import ghidra.framework.plugintool.PluginTool;
+@@ -871,11 +872,11 @@ private void setupHighlightOptions() {
+ 		ToolOptions opt = tool.getOptions(CATEGORY_BROWSER_FIELDS);
+ 		HelpLocation hl = new HelpLocation("CodeBrowserPlugin", "Cursor_Text_Highlight");
+ 
+-		opt.registerOption(HIGHLIGHT_COLOR_NAME, Color.YELLOW, hl,
++		opt.registerOption(HIGHLIGHT_COLOR_NAME, ColorContext.CURSOR_TEXT_HIGHLIGHT, hl,
+ 			"The color to use to highlight text.");
+-		opt.registerOption(SCOPED_WRITE_HIGHLIGHT_COLOR, new Color(204, 204, 0), hl,
++		opt.registerOption(SCOPED_WRITE_HIGHLIGHT_COLOR, ColorContext.CURSOR_TEXT_SCOPED_WRITE_HIGHLIGHT, hl,
+ 			"The color to use for showing a register being written.");
+-		opt.registerOption(SCOPED_READ_HIGHLIGHT_COLOR, new Color(0, 255, 0), hl,
++		opt.registerOption(SCOPED_READ_HIGHLIGHT_COLOR, ColorContext.CURSOR_TEXT_SCOPED_READ_HIGHLIGHT, hl,
+ 			"The color to use for showing a register being read.");
+ 
+ 		opt.registerOption(SCOPE_REGISTER_OPERAND, true, hl,
+@@ -895,11 +896,11 @@ private void setupHighlightOptions() {
+ 			setHighlightString(null, null);
+ 		}
+ 
+-		textMatchingHighlightColor = opt.getColor(HIGHLIGHT_COLOR_NAME, Color.YELLOW);
++		textMatchingHighlightColor = opt.getColor(HIGHLIGHT_COLOR_NAME, ColorContext.CURSOR_TEXT_HIGHLIGHT);
+ 
+ 		scopeWriteHighlightColor =
+-			opt.getColor(SCOPED_WRITE_HIGHLIGHT_COLOR, new Color(204, 204, 0));
+-		scopeReadHighlightColor = opt.getColor(SCOPED_READ_HIGHLIGHT_COLOR, new Color(0, 255, 0));
++			opt.getColor(SCOPED_WRITE_HIGHLIGHT_COLOR, ColorContext.CURSOR_TEXT_SCOPED_WRITE_HIGHLIGHT);
++		scopeReadHighlightColor = opt.getColor(SCOPED_READ_HIGHLIGHT_COLOR, ColorContext.CURSOR_TEXT_SCOPED_READ_HIGHLIGHT);
+ 
+ 		/////////////////////////////////////////////////////
+ 
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/MarkerServiceBackgroundColorModel.java b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/MarkerServiceBackgroundColorModel.java
+index 3515975d238..a7691fd0bab 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/MarkerServiceBackgroundColorModel.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/codebrowser/MarkerServiceBackgroundColorModel.java
+@@ -23,6 +23,7 @@
+ import ghidra.app.util.viewer.listingpanel.ListingBackgroundColorModel;
+ import ghidra.app.util.viewer.listingpanel.ListingPanel;
+ import ghidra.app.util.viewer.util.AddressIndexMap;
++import ghidra.docking.util.ColorContext;
+ import ghidra.program.model.address.Address;
+ import ghidra.program.model.listing.Program;
+ 
+@@ -33,7 +34,7 @@ public class MarkerServiceBackgroundColorModel implements ListingBackgroundColor
+ 	private MarkerService markerService;
+ 	private Program program;
+ 	private AddressIndexMap indexMap;
+-	private Color defaultBackgroundColor = Color.WHITE;
++	private Color defaultBackgroundColor = ColorContext.BACKGROUND;
+ 
+ 	public MarkerServiceBackgroundColorModel(MarkerService markerService, Program program,
+ 			AddressIndexMap indexMap) {
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/interpreter/InterpreterPanel.java b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/interpreter/InterpreterPanel.java
+index 5a4dfc48954..1219370a299 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/interpreter/InterpreterPanel.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/interpreter/InterpreterPanel.java
+@@ -30,6 +30,7 @@
+ import docking.actions.KeyBindingUtils;
+ import generic.util.WindowUtilities;
+ import ghidra.app.plugin.core.console.CodeCompletion;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.OptionsChangeListener;
+ import ghidra.framework.options.ToolOptions;
+ import ghidra.framework.plugintool.PluginTool;
+@@ -46,8 +47,8 @@ public class InterpreterPanel extends JPanel implements OptionsChangeListener {
+ 		"This is the font that will be used in the Console.  " +
+ 			"Double-click the font example to change it.";
+ 
+-	private static final Color NORMAL_COLOR = Color.black;
+-	private static final Color ERROR_COLOR = Color.red;
++	private static final Color NORMAL_COLOR = ColorContext.isDark ? ColorContext.WHITE : Color.black;
++	private static final Color ERROR_COLOR = ColorContext.RED;
+ 
+ 	public enum TextType {
+ 		STDOUT, STDERR, STDIN;
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusComponentProvider.java b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusComponentProvider.java
+index 5f4239ac34c..7c88ce557bb 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusComponentProvider.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusComponentProvider.java
+@@ -33,6 +33,7 @@
+ import generic.jar.ResourceFile;
+ import generic.util.Path;
+ import ghidra.app.services.ConsoleService;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.plugintool.ComponentProviderAdapter;
+ import ghidra.framework.plugintool.PluginTool;
+ import ghidra.framework.preferences.Preferences;
+@@ -104,8 +105,10 @@ private void build() {
+ 
+ 		bundleStatusTable = new GTable(bundleStatusTableModel);
+ 		bundleStatusTable.setName("BUNDLESTATUS_TABLE");
+-		bundleStatusTable.setSelectionBackground(new Color(204, 204, 255));
+-		bundleStatusTable.setSelectionForeground(Color.BLACK);
++		if (!ColorContext.isDark) {
++			bundleStatusTable.setSelectionBackground(new Color(204, 204, 255));
++			bundleStatusTable.setSelectionForeground(Color.BLACK);
++		}
+ 		bundleStatusTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+ 
+ 		// give actions a chance to update status when selection changed
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusTableModel.java b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusTableModel.java
+index 7f6221992c8..02843d50b44 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusTableModel.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/osgi/BundleStatusTableModel.java
+@@ -30,6 +30,7 @@
+ import docking.widgets.table.*;
+ import generic.jar.ResourceFile;
+ import generic.util.Path;
++import ghidra.docking.util.ColorContext;
+ import ghidra.docking.settings.Settings;
+ import ghidra.framework.plugintool.ServiceProvider;
+ import ghidra.util.*;
+@@ -40,11 +41,11 @@
+  */
+ public class BundleStatusTableModel
+ 		extends GDynamicColumnTableModel<BundleStatus, List<BundleStatus>> {
+-	private static final Color COLOR_BUNDLE_ERROR = Color.RED;
+-	private static final Color COLOR_BUNDLE_DISABLED = Color.DARK_GRAY;
+-	private static final Color COLOR_BUNDLE_BUSY = Color.GRAY;
+-	private static final Color COLOR_BUNDLE_INACTIVE = Color.BLACK;
+-	private static final Color COLOR_BUNDLE_ACTIVE = new Color(0.0f, .6f, 0.0f); // a dark green
++	private static final Color COLOR_BUNDLE_ERROR = ColorContext.RED;
++	private static final Color COLOR_BUNDLE_DISABLED = ColorContext.DARK_GRAY;
++	private static final Color COLOR_BUNDLE_BUSY = ColorContext.GRAY;
++	private static final Color COLOR_BUNDLE_INACTIVE = ColorContext.BLACK;
++	private static final Color COLOR_BUNDLE_ACTIVE = ColorContext.isDark ? ColorContext.WHITE : new Color(0.0f, .6f, 0.0f); // a dark green
+ 
+ 	private BundleHost bundleHost;
+ 	private BundleStatusComponentProvider provider;
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/util/PluginConstants.java b/Ghidra/Features/Base/src/main/java/ghidra/app/util/PluginConstants.java
+index 98fbd60360d..7a04fd9e6a7 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/util/PluginConstants.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/util/PluginConstants.java
+@@ -17,6 +17,8 @@
+ 
+ import java.awt.Color;
+ 
++import ghidra.docking.util.ColorContext;
++
+ /**
+  * Miscellaneous defined constants
+  *
+@@ -94,11 +96,11 @@ public interface PluginConstants {
+ 	/**
+ 	 * Color for highlighting for searches.
+ 	 */
+-	public static final Color SEARCH_HIGHLIGHT_COLOR = new Color(255, 255, 200);
++	public static final Color SEARCH_HIGHLIGHT_COLOR = ColorContext.isDark ? new Color(73, 72, 62) : new Color(255, 255, 200);
+ 	/**
+ 	 * Default highlight color used when something to highlight is at the current
+ 	 * address. 
+ 	 */
+-	public static final Color SEARCH_HIGHLIGHT_CURRENT_ADDR_COLOR = Color.YELLOW;
++	public static final Color SEARCH_HIGHLIGHT_CURRENT_ADDR_COLOR = ColorContext.isDark ? SEARCH_HIGHLIGHT_COLOR : Color.YELLOW;
+ 
+ }
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/util/bean/SetEquateDialog.java b/Ghidra/Features/Base/src/main/java/ghidra/app/util/bean/SetEquateDialog.java
+index d89ac48c817..659a2c83373 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/util/bean/SetEquateDialog.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/util/bean/SetEquateDialog.java
+@@ -148,17 +148,17 @@ public Component getTableCellRendererComponent(GTableCellRenderingData data) {
+ 				int refCount = eqRowObject.getRefCount();
+ 				if (refCount > 0) {
+ 					if (eqRowObject.getEntryName().contains(EquateManager.ERROR_TAG)) {
+-						c.setForeground(isSelected ? Color.WHITE : Color.RED);
++						c.setForeground(isSelected ? this.SELECTED_CELL_COLOR : this.BAD_EQUATE_COLOR);
+ 					}
+ 					else {
+ 						Equate e = eqRowObject.getEquate();
+ 						if (e != null && !e.isEnumBased()) {
+-							c.setForeground(isSelected ? Color.WHITE : Color.BLUE.brighter());
++							c.setForeground(isSelected ? this.SELECTED_CELL_COLOR : this.EQUATE_COLOR);
+ 						}
+ 					}
+ 				}
+ 				else {
+-					c.setForeground(isSelected ? Color.WHITE : Color.GRAY.darker());
++					c.setForeground(isSelected ? this.SELECTED_CELL_COLOR : this.SUGGESTION_COLOR);
+ 				}
+ 				return c;
+ 			}
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/listingpanel/PropertyBasedBackgroundColorModel.java b/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/listingpanel/PropertyBasedBackgroundColorModel.java
+index e754a0f45d2..a1a001fc214 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/listingpanel/PropertyBasedBackgroundColorModel.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/listingpanel/PropertyBasedBackgroundColorModel.java
+@@ -22,6 +22,7 @@
+ 
+ import docking.widgets.fieldpanel.support.BackgroundColorModel;
+ import ghidra.app.util.viewer.util.AddressIndexMap;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.model.DomainObjectChangedEvent;
+ import ghidra.framework.model.DomainObjectListener;
+ import ghidra.program.database.IntRangeMap;
+@@ -40,7 +41,7 @@
+ 	public static final String COLOR_PROPERTY_NAME = "LISTING_COLOR";
+ 	private IntRangeMap colorMap;
+ 	private AddressIndexMap indexMap;
+-	private Color defaultBackgroundColor = Color.WHITE;
++	private Color defaultBackgroundColor = ColorContext.BACKGROUND;
+ 	private Map<Integer, Color> colorCache = new HashMap<>();
+ 	private Program program;
+ 	private boolean enabled = false;
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/options/OptionsGui.java b/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/options/OptionsGui.java
+index d6593229d30..aef2fc96ef2 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/options/OptionsGui.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/app/util/viewer/options/OptionsGui.java
+@@ -36,6 +36,7 @@
+ import docking.widgets.indexedscrollpane.IndexedScrollPane;
+ import docking.widgets.label.GDLabel;
+ import ghidra.GhidraOptions;
++import ghidra.docking.util.ColorContext;
+ import ghidra.util.SystemUtilities;
+ 
+ /**
+@@ -59,71 +60,71 @@ public class OptionsGui extends JPanel {
+ 		(field, text, cursorTextOffset) -> NO_HIGHLIGHTS;
+ 
+ 	public static final ScreenElement COMMENT_AUTO =
+-		new ScreenElement("Comment, Automatic", Color.LIGHT_GRAY);
+-	public static final ScreenElement ADDRESS = new ScreenElement("Address", Color.BLACK);
+-	public static final ScreenElement BACKGROUND = new ScreenElement("Background", Color.WHITE);
++		new ScreenElement("Comment, Automatic", ColorContext.isDark ? new Color(95, 129, 157) : Color.LIGHT_GRAY);
++	public static final ScreenElement ADDRESS = new ScreenElement("Address", ColorContext.isDark ? new Color(102, 102, 102) : Color.BLACK);
++	public static final ScreenElement BACKGROUND = new ScreenElement("Background", ColorContext.isDark ? new Color(40, 42, 46) : Color.WHITE);
+ 	public static final ScreenElement BAD_REF_ADDR =
+-		new ScreenElement("Bad Reference Address", Color.RED);
+-	public static final ScreenElement BYTES = new ScreenElement("Bytes", Color.BLUE);
+-	public static final ScreenElement CONSTANT = new ScreenElement("Constant", BLUE_GREEN);
++		new ScreenElement("Bad Reference Address", ColorContext.isDark ? new Color(165, 66, 66) : Color.RED);
++	public static final ScreenElement BYTES = new ScreenElement("Bytes", ColorContext.isDark ? new Color(129, 162, 190) : Color.BLUE);
++	public static final ScreenElement CONSTANT = new ScreenElement("Constant", ColorContext.isDark ? new Color(165, 66, 66) : BLUE_GREEN);
+ 	public static final ScreenElement LABELS_UNREFD =
+-		new ScreenElement("Labels, Unreferenced", Color.BLACK);
+-	public static final ScreenElement ENTRY_POINT = new ScreenElement("Entry Point", Color.MAGENTA);
++		new ScreenElement("Labels, Unreferenced", ColorContext.isDark ? new Color(197, 200, 198) : Color.BLACK);
++	public static final ScreenElement ENTRY_POINT = new ScreenElement("Entry Point", ColorContext.isDark ? new Color(197, 200, 198) : Color.MAGENTA);
+ 	public static final ScreenElement COMMENT_EOL =
+-		new ScreenElement("Comment, EOL", "EOL Comment", Color.BLUE);
++		new ScreenElement("Comment, EOL", "EOL Comment", ColorContext.isDark ? new Color(95, 129, 157) : Color.BLUE);
+ 	public static final ScreenElement EXT_REF_RESOLVED =
+-		new ScreenElement("External Reference, Resolved", Color.CYAN.darker().darker());
+-	public static final ScreenElement FIELD_NAME = new ScreenElement("Field Name", Color.BLACK);
++		new ScreenElement("External Reference, Resolved", ColorContext.isDark ? new Color(94, 141, 135) : Color.CYAN.darker().darker());
++	public static final ScreenElement FIELD_NAME = new ScreenElement("Field Name", ColorContext.isDark ? new Color(197, 200, 198) : Color.BLACK);
+ 	public static final ScreenElement FUN_CALL_FIXUP =
+-		new ScreenElement("Function Call-Fixup", new Color(255, 0, 204));
+-	public static final ScreenElement FUN_NAME = new ScreenElement("Function Name", Color.BLUE);
++		new ScreenElement("Function Call-Fixup", ColorContext.isDark ? new Color(178, 148, 187) : new Color(255, 0, 204));
++	public static final ScreenElement FUN_NAME = new ScreenElement("Function Name", ColorContext.isDark ? new Color(94, 141, 135) : Color.BLUE);
+ 	public static final ScreenElement FUN_PARAMS =
+-		new ScreenElement("Function Parameters", Color.BLACK);
+-	public static final ScreenElement FUN_TAG = new ScreenElement("Function Tag", DARK_RED);
++		new ScreenElement("Function Parameters", ColorContext.isDark ? new Color(197, 200, 198) : Color.BLACK);
++	public static final ScreenElement FUN_TAG = new ScreenElement("Function Tag", ColorContext.isDark ? new Color(133, 103, 143) : DARK_RED);
+ 	public static final ScreenElement FUN_AUTO_PARAMS =
+ 		new ScreenElement("Function Auto-Parameters", Color.GRAY);
+ 	public static final ScreenElement FUN_RET_TYPE =
+-		new ScreenElement("Function Return Type", Color.BLACK);
++		new ScreenElement("Function Return Type", ColorContext.isDark ? new Color(197, 200, 198) : Color.BLACK);
+ 	public static final ScreenElement COMMENT_REPEATABLE =
+-		new ScreenElement("Comment, Repeatable", DARK_ORANGE);
++		new ScreenElement("Comment, Repeatable", ColorContext.isDark ? new Color(95, 129, 157) : DARK_ORANGE);
+ 	public static final ScreenElement COMMENT_REF_REPEAT =
+-		new ScreenElement("Comment, Referenced Repeatable", new Color(190, 190, 255));
+-	public static final ScreenElement LABELS_LOCAL = new ScreenElement("Labels, Local", BLUE_GREEN);
++		new ScreenElement("Comment, Referenced Repeatable", ColorContext.isDark ? new Color(95, 129, 157) : new Color(190, 190, 255));
++	public static final ScreenElement LABELS_LOCAL = new ScreenElement("Labels, Local", ColorContext.isDark ? new Color(140, 148, 64) : BLUE_GREEN);
+ 	public static final ScreenElement MNEMONIC_OVERRIDE =
+-		new ScreenElement("Mnemonic, Override", new Color(255, 0, 204));
+-	public static final ScreenElement MNEMONIC = new ScreenElement("Mnemonic", DARK_BLUE);
++		new ScreenElement("Mnemonic, Override", ColorContext.isDark ? new Color(197, 200, 198) : new Color(255, 0, 204));
++	public static final ScreenElement MNEMONIC = new ScreenElement("Mnemonic", ColorContext.isDark ? new Color(197, 200, 198) : DARK_BLUE);
+ 	public static final ScreenElement UNIMPL =
+ 		new ScreenElement("Unimplemented Mnemonic", Color.RED);
+ 	public static final ScreenElement FLOW_ARROW_NON_ACTIVE =
+ 		new ScreenElement("Flow Arrow, Not Active", new Color(160, 160, 160));
+ 	public static final ScreenElement FLOW_ARROW_ACTIVE =
+-		new ScreenElement("Flow Arrow, Active", Color.BLACK);
++		new ScreenElement("Flow Arrow, Active", ColorContext.isDark ? new Color(197, 200, 198) : Color.BLACK);
+ 	public static final ScreenElement FLOW_ARROW_SELECTED =
+ 		new ScreenElement("Flow Arrow, Selected", new Color(0, 200, 0));
+ 	public static final ScreenElement LABELS_NON_PRIMARY =
+ 		new ScreenElement("Labels, Non-primary", YELLOW_ORANGE);
+ 	public static final ScreenElement COMMENT_PLATE =
+-		new ScreenElement("Comment, Plate", "Plate Comment", Color.GRAY);
++		new ScreenElement("Comment, Plate", "Plate Comment", ColorContext.isDark ? new Color(95, 129, 157) : Color.GRAY);
+ 	public static final ScreenElement COMMENT_POST =
+-		new ScreenElement("Comment, Post", "Post-Comment", Color.BLUE);
++		new ScreenElement("Comment, Post", "Post-Comment", ColorContext.isDark ? new Color(95, 129, 157) : Color.BLUE);
+ 	public static final ScreenElement COMMENT_PRE =
+-		new ScreenElement("Comment, Pre", "Pre-Comment", DEEP_PURPLE);
++		new ScreenElement("Comment, Pre", "Pre-Comment", ColorContext.isDark ? new Color(95, 129, 157) : DEEP_PURPLE);
+ 	public static final ScreenElement LABELS_PRIMARY =
+-		new ScreenElement("Labels, Primary", DARK_BLUE);
+-	public static final ScreenElement SEPARATOR = new ScreenElement("Separator", Color.BLACK);
+-	public static final ScreenElement VARIABLE = new ScreenElement("Variable", PURPLE);
++		new ScreenElement("Labels, Primary", ColorContext.isDark ? new Color(95, 129, 157) : DARK_BLUE);
++	public static final ScreenElement SEPARATOR = new ScreenElement("Separator", ColorContext.isDark ? new Color(197, 200, 198) : Color.BLACK);
++	public static final ScreenElement VARIABLE = new ScreenElement("Variable", ColorContext.isDark ? new Color(133, 103, 143) : PURPLE);
+ 	public static final ScreenElement PARAMETER_CUSTOM =
+-		new ScreenElement("Parameter, Custom Storage", DARK_PURPLE);
++		new ScreenElement("Parameter, Custom Storage", ColorContext.isDark ? new Color(133, 103, 143) : DARK_PURPLE);
+ 	public static final ScreenElement PARAMETER_DYNAMIC =
+-		new ScreenElement("Parameter, Dynamic Storage", DARK_CYAN);
+-	public static final ScreenElement VERSION_TRAK = new ScreenElement("Version Track", PURPLE);
+-	public static final ScreenElement XREF = new ScreenElement("XRef", DARK_GREEN);
++		new ScreenElement("Parameter, Dynamic Storage", ColorContext.isDark ? new Color(94, 141, 135) : DARK_CYAN);
++	public static final ScreenElement VERSION_TRAK = new ScreenElement("Version Track", ColorContext.isDark ? new Color(178, 148, 187) : PURPLE);
++	public static final ScreenElement XREF = new ScreenElement("XRef", ColorContext.isDark ? new Color(140, 148, 64) : DARK_GREEN);
+ 	public static final ScreenElement XREF_OFFCUT = new ScreenElement("XRef, Offcut", Color.GRAY);
+-	public static final ScreenElement XREF_READ = new ScreenElement("XRef Read", Color.BLUE);
+-	public static final ScreenElement XREF_WRITE = new ScreenElement("XRef Write", DARK_ORANGE);
+-	public static final ScreenElement XREF_OTHER = new ScreenElement("XRef Other", Color.BLACK);
++	public static final ScreenElement XREF_READ = new ScreenElement("XRef Read", ColorContext.isDark ? new Color(95, 129, 157) : Color.BLUE);
++	public static final ScreenElement XREF_WRITE = new ScreenElement("XRef Write", ColorContext.isDark ? new Color(222, 147, 95) : DARK_ORANGE);
++	public static final ScreenElement XREF_OTHER = new ScreenElement("XRef Other", ColorContext.isDark ? new Color(197, 200, 198) : Color.BLACK);
+ 	public static final ScreenElement REGISTERS = new ScreenElement("Registers", YELLOW_ORANGE);
+-	public static final ScreenElement UNDERLINE = new ScreenElement("Underline", PALE_BLUE);
++	public static final ScreenElement UNDERLINE = new ScreenElement("Underline", ColorContext.isDark ? new Color(178, 148, 187) : PALE_BLUE);
+ 	public static final ScreenElement PCODE_LINE_LABEL =
+ 		new ScreenElement("P-code Line Label", Color.BLUE);
+ 	public static final ScreenElement PCODE_ADDR_SPACE =
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/framework/main/ConsoleTextPane.java b/Ghidra/Features/Base/src/main/java/ghidra/framework/main/ConsoleTextPane.java
+index 4c9212a952a..6a1016d754d 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/framework/main/ConsoleTextPane.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/framework/main/ConsoleTextPane.java
+@@ -22,6 +22,7 @@
+ import javax.swing.JTextPane;
+ import javax.swing.text.*;
+ 
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.*;
+ import ghidra.framework.plugintool.PluginTool;
+ import ghidra.util.Msg;
+@@ -211,7 +212,8 @@ private void createAttributes(Font font) {
+ 		outputAttributeSet.addAttribute(StyleConstants.FontSize, font.getSize());
+ 		outputAttributeSet.addAttribute(StyleConstants.Italic, font.isItalic());
+ 		outputAttributeSet.addAttribute(StyleConstants.Bold, font.isBold());
+-		outputAttributeSet.addAttribute(StyleConstants.Foreground, Color.BLACK);
++		if (!ColorContext.isDark)
++			outputAttributeSet.addAttribute(StyleConstants.Foreground, Color.BLACK);
+ 
+ 		errorAttributeSet = new SimpleAttributeSet();
+ 		errorAttributeSet.addAttribute(CUSTOM_ATTRIBUTE_KEY, ERROR_ATTRIBUTE_VALUE);
+@@ -219,7 +221,7 @@ private void createAttributes(Font font) {
+ 		errorAttributeSet.addAttribute(StyleConstants.FontSize, font.getSize());
+ 		errorAttributeSet.addAttribute(StyleConstants.Italic, font.isItalic());
+ 		errorAttributeSet.addAttribute(StyleConstants.Bold, font.isBold());
+-		errorAttributeSet.addAttribute(StyleConstants.Foreground, Color.RED);
++		errorAttributeSet.addAttribute(StyleConstants.Foreground, ColorContext.RED);
+ 	}
+ 
+ 	private void doUpdate() {
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/framework/main/InfoPanel.java b/Ghidra/Features/Base/src/main/java/ghidra/framework/main/InfoPanel.java
+index 2e27f4e91ed..d18dba25346 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/framework/main/InfoPanel.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/framework/main/InfoPanel.java
+@@ -28,6 +28,7 @@
+ import docking.widgets.*;
+ import docking.widgets.label.*;
+ import generic.util.WindowUtilities;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.Application;
+ import ghidra.framework.ApplicationProperties;
+ import ghidra.util.*;
+@@ -58,7 +59,7 @@ class InfoPanel extends JPanel {
+ 
+ 	InfoPanel() {
+ 		getAboutInfo();
+-		bgColor = new Color(243, 250, 255);
++		bgColor = ColorContext.isDark ? getBackground() : new Color(243, 250, 255);
+ 		create();
+ 	}
+ 
+@@ -174,7 +175,8 @@ private Component buildVersionLabel() {
+ 		Font font = versionLabel.getFont();
+ 		font = font.deriveFont(14f).deriveFont(Font.BOLD);
+ 		versionLabel.setFont(font);
+-		versionLabel.setForeground(Color.BLACK);
++		if (!ColorContext.isDark)
++			versionLabel.setForeground(Color.BLACK);
+ 		return versionLabel;
+ 	}
+ 
+diff --git a/Ghidra/Features/Base/src/main/java/ghidra/util/table/GhidraTableCellRenderer.java b/Ghidra/Features/Base/src/main/java/ghidra/util/table/GhidraTableCellRenderer.java
+index 93be27e4709..42af64db4ed 100644
+--- a/Ghidra/Features/Base/src/main/java/ghidra/util/table/GhidraTableCellRenderer.java
++++ b/Ghidra/Features/Base/src/main/java/ghidra/util/table/GhidraTableCellRenderer.java
+@@ -16,6 +16,7 @@
+  */
+ package ghidra.util.table;
+ 
++import ghidra.docking.util.ColorContext;
+ import ghidra.program.model.address.Address;
+ import ghidra.program.model.listing.Program;
+ import ghidra.program.model.mem.Memory;
+@@ -35,6 +36,10 @@ public class GhidraTableCellRenderer extends GTableCellRenderer {
+ 	// Defaults as defined by OptionsGui class - would be nice to use the tool options
+ 	private static final Color BAD_REF_ADDR_COLOR = Color.red;
+ 	private static final Color EXT_REF_RESOLVED_COLOR = Color.CYAN.darker().darker();
++	public Color SELECTED_CELL_COLOR = ColorContext.isDark ? getForeground() : Color.WHITE;
++	public Color BAD_EQUATE_COLOR = ColorContext.isDark ? new Color(237, 89, 64) : Color.RED;
++	public Color EQUATE_COLOR = ColorContext.isDark ? new Color(58, 132, 250) : Color.BLUE.brighter();
++	public Color SUGGESTION_COLOR = ColorContext.isDark ? getForeground() : Color.GRAY.darker();
+ 
+ 	public GhidraTableCellRenderer() {
+ 		// default constructor
+diff --git a/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerComponentProvider.java b/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerComponentProvider.java
+index 447e5662013..40e6a036c24 100644
+--- a/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerComponentProvider.java
++++ b/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerComponentProvider.java
+@@ -29,6 +29,7 @@
+ import ghidra.app.plugin.core.format.*;
+ import ghidra.app.services.MarkerService;
+ import ghidra.app.util.viewer.listingpanel.AddressSetDisplayListener;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.*;
+ import ghidra.framework.plugintool.ComponentProviderAdapter;
+ import ghidra.framework.plugintool.PluginTool;
+@@ -54,11 +55,11 @@ public abstract class ByteViewerComponentProvider extends ComponentProviderAdapt
+ 
+ 	static final Font DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 12);
+ 	static final int DEFAULT_BYTES_PER_LINE = 16;
+-	static final Color DEFAULT_MISSING_VALUE_COLOR = Color.blue;
+-	static final Color DEFAULT_EDIT_COLOR = Color.red;
+-	static final Color DEFAULT_CURRENT_CURSOR_COLOR = Color.magenta.brighter();
+-	static final Color DEFAULT_CURSOR_COLOR = Color.black;
+-	static final Color DEFAULT_NONFOCUS_CURSOR_COLOR = Color.darkGray;
++	static final Color DEFAULT_MISSING_VALUE_COLOR = ColorContext.BLUE;
++	static final Color DEFAULT_EDIT_COLOR = ColorContext.RED;
++	static final Color DEFAULT_CURRENT_CURSOR_COLOR = ColorContext.MAGENTA.brighter();
++	static final Color DEFAULT_CURSOR_COLOR = ColorContext.BLACK;
++	static final Color DEFAULT_NONFOCUS_CURSOR_COLOR = ColorContext.DARK_GRAY;
+ 	private static final Color DEFAULT_CURSOR_LINE_COLOR = GhidraOptions.DEFAULT_CURSOR_LINE_COLOR;
+ 
+ 	static final String DEFAULT_INDEX_NAME = "Addresses";
+@@ -264,7 +265,7 @@ private void setOptions() {
+ 			CURSOR_HIGHLIGHT_BUTTON_NAME, GhidraOptions.CURSOR_MOUSE_BUTTON_NAMES.MIDDLE);
+ 		panel.setHighlightButton(mouseButton.getMouseEventID());
+ 
+-		panel.setMouseButtonHighlightColor(opt.getColor(HIGHLIGHT_COLOR_NAME, Color.YELLOW));
++		panel.setMouseButtonHighlightColor(opt.getColor(HIGHLIGHT_COLOR_NAME, DEFAULT_HIGHLIGHT_COLOR));
+ 
+ 		opt.addOptionsChangeListener(this);
+ 	}
+diff --git a/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerPanel.java b/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerPanel.java
+index a9d3e3841a2..5569d64392d 100644
+--- a/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerPanel.java
++++ b/Ghidra/Features/ByteViewer/src/main/java/ghidra/app/plugin/core/byteviewer/ByteViewerPanel.java
+@@ -35,6 +35,7 @@
+ import docking.widgets.label.GLabel;
+ import ghidra.app.plugin.core.format.*;
+ import ghidra.app.util.viewer.listingpanel.AddressSetDisplayListener;
++import ghidra.docking.util.ColorContext;
+ import ghidra.program.model.address.AddressSet;
+ import ghidra.program.model.address.AddressSetView;
+ import ghidra.util.HelpLocation;
+@@ -833,7 +834,9 @@ private void create() {
+ 
+ 		columnHeader.addColumn(ByteViewerComponentProvider.DEFAULT_INDEX_NAME, indexPanel);
+ 		scrollp.setColumnHeaderComp(columnHeader);
+-		compPanel.setBackground(Color.WHITE);
++
++		if (!ColorContext.isDark)
++			compPanel.setBackground(Color.WHITE);
+ 
+ 		statusPanel = createStatusPanel();
+ 		add(scrollp, BorderLayout.CENTER);
+diff --git a/Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/DecompileOptions.java b/Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/DecompileOptions.java
+index 1dddf53a868..42701b87048 100644
+--- a/Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/DecompileOptions.java
++++ b/Ghidra/Features/Decompiler/src/main/java/ghidra/app/decompiler/DecompileOptions.java
+@@ -23,6 +23,7 @@
+ 
+ import ghidra.GhidraOptions.CURSOR_MOUSE_BUTTON_NAMES;
+ import ghidra.app.util.HelpTopics;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.Options;
+ import ghidra.framework.options.ToolOptions;
+ import ghidra.framework.plugintool.Plugin;
+@@ -296,45 +297,45 @@ public String toString() {
+ 	private final static IntegerFormatEnum INTEGERFORMAT_OPTIONDEFAULT = IntegerFormatEnum.BestFit;		// Must match PrintLanguage::resetDefaultsInternal
+ 	private IntegerFormatEnum integerFormat;
+ 
+-	private final static Color HIGHLIGHT_MIDDLE_MOUSE_DEF = new Color(255, 255, 0, 128);
++	private final static Color HIGHLIGHT_MIDDLE_MOUSE_DEF = ColorContext.isDark ? new Color(55, 59, 65) : new Color(255, 255, 0, 128);
+ 	private Color middleMouseHighlightColor;
+ 	private int middleMouseHighlightButton = MouseEvent.BUTTON2;
+ 
+ 	private final static String HIGHLIGHT_CURRENT_VARIABLE_MSG =
+ 		"Display.Color for Current Variable Highlight";
+-	private final static Color HIGHLIGHT_CURRENT_VARIABLE_DEF = new Color(255, 255, 0, 128);
++	private final static Color HIGHLIGHT_CURRENT_VARIABLE_DEF = ColorContext.isDark ? new Color(55, 59, 65) : new Color(255, 255, 0, 128);
+ 	private Color currentVariableHighlightColor;
+ 
+ 	private final static String HIGHLIGHT_KEYWORD_MSG = "Display.Color for Keywords";
+-	private final static Color HIGHLIGHT_KEYWORD_DEF = Color.decode("0x0001E6");
++	private final static Color HIGHLIGHT_KEYWORD_DEF = ColorContext.isDark ? new Color(222, 147, 95) : Color.decode("0x0001E6");
+ 	private Color keywordColor;
+ 	private final static String HIGHLIGHT_FUNCTION_MSG = "Display.Color for Function names";
+-	private final static Color HIGHLIGHT_FUNCTION_DEF = Color.decode("0x0000FF");
++	private final static Color HIGHLIGHT_FUNCTION_DEF = ColorContext.isDark ? new Color(94, 141, 135) : Color.decode("0x0000FF");
+ 	private Color functionColor;
+ 	private final static String HIGHLIGHT_COMMENT_MSG = "Display.Color for Comments";
+-	private final static Color HIGHLIGHT_COMMENT_DEF = Color.decode("0x9600FF");
++	private final static Color HIGHLIGHT_COMMENT_DEF = ColorContext.isDark ? new Color(95, 129, 157) : Color.decode("0x9600FF");
+ 	private Color commentColor;
+ 	private final static String HIGHLIGHT_VARIABLE_MSG = "Display.Color for Variables";
+-	private final static Color HIGHLIGHT_VARIABLE_DEF = Color.decode("0x999900");
++	private final static Color HIGHLIGHT_VARIABLE_DEF = ColorContext.isDark ? new Color(197, 200, 198) : Color.decode("0x999900");
+ 	private Color variableColor;
+ 	private final static String HIGHLIGHT_CONST_MSG = "Display.Color for Constants";
+-	private final static Color HIGHLIGHT_CONST_DEF = Color.decode("0x008E00");
++	private final static Color HIGHLIGHT_CONST_DEF = ColorContext.isDark ? new Color(165, 66, 66) : Color.decode("0x008E00");
+ 	private Color constantColor;
+ 	private final static String HIGHLIGHT_TYPE_MSG = "Display.Color for Types";
+-	private final static Color HIGHLIGHT_TYPE_DEF = Color.decode("0x0033CC");
++	private final static Color HIGHLIGHT_TYPE_DEF = ColorContext.isDark ? new Color(140, 148, 64) : Color.decode("0x0033CC");
+ 	private Color typeColor;
+ 	private final static String HIGHLIGHT_PARAMETER_MSG = "Display.Color for Parameters";
+-	private final static Color HIGHLIGHT_PARAMETER_DEF = Color.decode("0x9B009B");
++	private final static Color HIGHLIGHT_PARAMETER_DEF = ColorContext.isDark ? new Color(133, 103, 143) : Color.decode("0x9B009B");
+ 	private Color parameterColor;
+ 	private final static String HIGHLIGHT_GLOBAL_MSG = "Display.Color for Globals";
+ 	private final static Color HIGHLIGHT_GLOBAL_DEF = Color.decode("0x009999");
+ 	private Color globalColor;
+ 	private final static String HIGHLIGHT_DEFAULT_MSG = "Display.Color Default";
+-	private final static Color HIGHLIGHT_DEFAULT_DEF = Color.BLACK;
++	private final static Color HIGHLIGHT_DEFAULT_DEF = ColorContext.isDark ? ColorContext.WHITE : Color.BLACK;
+ 	private Color defaultColor;
+ 
+ 	private static final String CODE_VIEWER_BACKGROUND_COLOR_MSG = "Display.Background Color";
+-	private static final Color CODE_VIEWER_BACKGROUND_COLOR = Color.WHITE;
++	private static final Color CODE_VIEWER_BACKGROUND_COLOR = ColorContext.BACKGROUND;
+ 	private Color codeViewerBackgroundColor;
+ 
+ 	private static final String SEARCH_HIGHLIGHT_MSG =
+diff --git a/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/graph/FGComponent.java b/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/graph/FGComponent.java
+index ba23771b280..8300ecdfe8c 100644
+--- a/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/graph/FGComponent.java
++++ b/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/graph/FGComponent.java
+@@ -32,6 +32,7 @@
+ import ghidra.app.plugin.core.functiongraph.graph.layout.FGLayout;
+ import ghidra.app.plugin.core.functiongraph.graph.vertex.*;
+ import ghidra.app.plugin.core.functiongraph.mvc.*;
++import ghidra.docking.util.ColorContext;
+ import ghidra.graph.viewer.*;
+ import ghidra.graph.viewer.layout.LayoutListener.ChangeType;
+ import ghidra.graph.viewer.layout.LayoutProvider;
+@@ -232,7 +233,7 @@ protected FGPrimaryViewer createPrimaryGraphViewer(VisualGraphLayout<FGVertex, F
+ 			if (function instanceof UndefinedFunction) {
+ 				viewer.setBackground(UNDEFINED_FUNCTION_COLOR);
+ 			}
+-			else {
++			else if (!ColorContext.isDark) {
+ 				viewer.setBackground(Color.WHITE);
+ 			}
+ 		}
+diff --git a/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/mvc/FunctionGraphOptions.java b/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/mvc/FunctionGraphOptions.java
+index 4012f68efd8..9bec7e07835 100644
+--- a/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/mvc/FunctionGraphOptions.java
++++ b/Ghidra/Features/FunctionGraph/src/main/java/ghidra/app/plugin/core/functiongraph/mvc/FunctionGraphOptions.java
+@@ -21,6 +21,7 @@
+ 
+ import ghidra.app.plugin.core.functiongraph.FunctionGraphPlugin;
+ import ghidra.app.plugin.core.functiongraph.graph.layout.FGLayoutOptions;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.Options;
+ import ghidra.graph.viewer.options.RelayoutOption;
+ import ghidra.graph.viewer.options.VisualGraphOptions;
+@@ -85,7 +86,7 @@ public class FunctionGraphOptions extends VisualGraphOptions {
+ 		"Signals that any user color changes to a group vertex will apply that same color to " +
+ 			"all grouped vertices as well.";
+ 
+-	public static final Color DEFAULT_VERTEX_BACKGROUND_COLOR = Color.WHITE;
++	public static final Color DEFAULT_VERTEX_BACKGROUND_COLOR = ColorContext.BACKGROUND;
+ 	public static final Color DEFAULT_GROUP_BACKGROUND_COLOR = new Color(226, 255, 155);
+ 	private static final Color HOVER_HIGHLIGHT_FALL_THROUGH_COLOR = new Color(255, 127, 127);
+ 	private static final Color HOVER_HIGHLIGHT_UNCONDITIONAL_COLOR = new Color(127, 127, 255);
+@@ -96,13 +97,13 @@ public class FunctionGraphOptions extends VisualGraphOptions {
+ 	private boolean updateGroupColorsAutomatically = true;
+ 	private Color defaultGroupBackgroundColor = DEFAULT_GROUP_BACKGROUND_COLOR;
+ 
+-	private Color fallthroughEdgeColor = Color.RED;
+-	private Color unconditionalJumpEdgeColor = Color.BLUE;
+-	private Color conditionalJumpEdgeColor = Color.GREEN.darker().darker();
++	private Color fallthroughEdgeColor = ColorContext.isDark ? new Color(165, 66, 66) : Color.RED;
++	private Color unconditionalJumpEdgeColor = ColorContext.isDark ? new Color(140, 148, 64) : Color.BLUE;
++	private Color conditionalJumpEdgeColor = ColorContext.isDark ? new Color(95, 129, 157) : Color.GREEN.darker().darker();
+ 
+-	private Color fallthroughEdgeHighlightColor = HOVER_HIGHLIGHT_FALL_THROUGH_COLOR;
+-	private Color unconditionalJumpEdgeHighlightColor = HOVER_HIGHLIGHT_UNCONDITIONAL_COLOR;
+-	private Color conditionalJumpEdgeHighlightColor = HOVER_HIGHLIGHT_CONDITIONAL_COLOR;
++	private Color fallthroughEdgeHighlightColor = ColorContext.isDark ? new Color(165, 76, 80) : HOVER_HIGHLIGHT_FALL_THROUGH_COLOR;
++	private Color unconditionalJumpEdgeHighlightColor = ColorContext.isDark ? new Color(140, 162, 88) : HOVER_HIGHLIGHT_UNCONDITIONAL_COLOR;
++	private Color conditionalJumpEdgeHighlightColor = ColorContext.isDark ? new Color(95, 160, 196) : HOVER_HIGHLIGHT_CONDITIONAL_COLOR;
+ 
+ 	private boolean useFullSizeTooltip = false;
+ 
+diff --git a/Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/plugin/ActiveFidConfigureDialog.java b/Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/plugin/ActiveFidConfigureDialog.java
+index e9530bb4606..6753ae051c3 100644
+--- a/Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/plugin/ActiveFidConfigureDialog.java
++++ b/Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/plugin/ActiveFidConfigureDialog.java
+@@ -24,6 +24,7 @@
+ 
+ import docking.DialogComponentProvider;
+ import docking.widgets.checkbox.GCheckBox;
++import ghidra.docking.util.ColorContext;
+ import ghidra.feature.fid.db.FidFile;
+ import ghidra.util.HelpLocation;
+ import ghidra.util.layout.VerticalLayout;
+@@ -89,7 +90,8 @@ private Component buildCheckboxPanelScroller() {
+ 	private Component buildCheckBoxPanel() {
+ 		JPanel panel = new JPanel(new VerticalLayout(5));
+ 		panel.setOpaque(true);
+-		panel.setBackground(Color.WHITE);
++		if (!ColorContext.isDark)
++			panel.setBackground(Color.WHITE);
+ 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+ 		for (FidFile fidFile : fidFiles) {
+ 			GCheckBox checkbox = new GCheckBox(fidFile.getName(), fidFile.isActive());
+diff --git a/Ghidra/Features/GraphFunctionCalls/src/main/java/functioncalls/graph/view/FcgComponent.java b/Ghidra/Features/GraphFunctionCalls/src/main/java/functioncalls/graph/view/FcgComponent.java
+index b39e333a70d..4d45370302a 100644
+--- a/Ghidra/Features/GraphFunctionCalls/src/main/java/functioncalls/graph/view/FcgComponent.java
++++ b/Ghidra/Features/GraphFunctionCalls/src/main/java/functioncalls/graph/view/FcgComponent.java
+@@ -22,6 +22,7 @@
+ import functioncalls.graph.renderer.FcgEdgePaintTransformer;
+ import functioncalls.graph.renderer.FcgVertexPaintTransformer;
+ import functioncalls.plugin.FunctionCallGraphPlugin;
++import ghidra.docking.util.ColorContext;
+ import ghidra.graph.viewer.*;
+ import ghidra.graph.viewer.layout.VisualGraphLayout;
+ 
+@@ -41,7 +42,7 @@ public class FcgComponent extends GraphComponent<FcgVertex, FcgEdge, FunctionCal
+ 	private Color lightGray = new Color(233, 233, 233);
+ 
+ 	// the satellite gets too cluttered, so wash out the edges
+-	private Color washedOutBlack = new Color(0, 0, 0, 25);
++	private Color washedOutBlack = ColorContext.isDark ? new Color(255, 255, 255, 25) : new Color(0, 0, 0, 25);
+ 
+ 	private FcgEdgePaintTransformer edgePaintTransformer =
+ 		new FcgEdgePaintTransformer(lightGreen, lightGray);
+diff --git a/Ghidra/Features/GraphServices/src/main/java/ghidra/graph/visualization/DefaultGraphDisplay.java b/Ghidra/Features/GraphServices/src/main/java/ghidra/graph/visualization/DefaultGraphDisplay.java
+index 21263deb25b..b960ff2b68a 100644
+--- a/Ghidra/Features/GraphServices/src/main/java/ghidra/graph/visualization/DefaultGraphDisplay.java
++++ b/Ghidra/Features/GraphServices/src/main/java/ghidra/graph/visualization/DefaultGraphDisplay.java
+@@ -53,6 +53,7 @@
+ import docking.widgets.EventTrigger;
+ import docking.widgets.OptionDialog;
+ import generic.util.WindowUtilities;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.Options;
+ import ghidra.framework.options.ToolOptions;
+ import ghidra.framework.plugintool.PluginTool;
+@@ -78,6 +79,8 @@ public class DefaultGraphDisplay implements GraphDisplay {
+ 	private static final Dimension PREFERRED_VIEW_SIZE = new Dimension(1000, 1000);
+ 	private static final Dimension PREFERRED_LAYOUT_SIZE = new Dimension(3000, 3000);
+ 
++	private static Color BACKGROUND_COLOR = ColorContext.isDark ? new Color(69, 73, 74) : Color.WHITE;
++
+ 	// layout algorithm categories
+ 	static final String MIN_CROSS = "Hierarchical MinCross";
+ 	static final String VERT_MIN_CROSS = "Vertical Hierarchical MinCross";
+@@ -1293,7 +1296,7 @@ public void ancestorMoved(AncestorEvent ancestorEvent) {
+ 		graphRenderer.initializeViewer(vv);
+ 
+ 		vv.getComponent().requestFocus();
+-		vv.setBackground(Color.WHITE);
++		vv.setBackground(BACKGROUND_COLOR);
+ 		MouseListener[] mouseListeners = vv.getComponent().getMouseListeners();
+ 		for (MouseListener mouseListener : mouseListeners) {
+ 			vv.getComponent().removeMouseListener(mouseListener);
+diff --git a/Ghidra/Features/ProgramDiff/src/main/java/ghidra/app/plugin/core/diff/ProgramDiffPlugin.java b/Ghidra/Features/ProgramDiff/src/main/java/ghidra/app/plugin/core/diff/ProgramDiffPlugin.java
+index eba347d6c4a..f10d0aab5a6 100644
+--- a/Ghidra/Features/ProgramDiff/src/main/java/ghidra/app/plugin/core/diff/ProgramDiffPlugin.java
++++ b/Ghidra/Features/ProgramDiff/src/main/java/ghidra/app/plugin/core/diff/ProgramDiffPlugin.java
+@@ -44,6 +44,7 @@
+ import ghidra.app.plugin.core.codebrowser.MarkerServiceBackgroundColorModel;
+ import ghidra.app.plugin.core.marker.MarkerManager;
+ import ghidra.app.services.*;
++import ghidra.docking.util.ColorContext;
+ import ghidra.app.util.viewer.field.FieldFactory;
+ import ghidra.app.util.viewer.field.ListingField;
+ import ghidra.app.util.viewer.format.FormatManager;
+@@ -95,7 +96,7 @@ public class ProgramDiffPlugin extends ProgramPlugin
+ 	private static final String SELECTION_GROUP = "Selection Colors";
+ 	private static final String DIFF_HIGHLIGHT_COLOR_NAME =
+ 		SELECTION_GROUP + Options.DELIMITER + "Difference Color";
+-	private Color diffHighlightColor = new Color(255, 230, 180); // light orange
++	private Color diffHighlightColor = ColorContext.SELECTION_DIFFERENCE;
+ 	private Color cursorHighlightColor;
+ 	protected static final HelpService help = Help.getHelpService();
+ 
+diff --git a/Ghidra/Framework/Docking/Module.manifest b/Ghidra/Framework/Docking/Module.manifest
+index e6cdd58e775..c27f384e9de 100644
+--- a/Ghidra/Framework/Docking/Module.manifest
++++ b/Ghidra/Framework/Docking/Module.manifest
+@@ -1,2 +1,3 @@
+ MODULE FILE LICENSE: lib/timingframework-1.0.jar BSD
+ MODULE FILE LICENSE: lib/javahelp-2.0.05.jar GPL 2 With Classpath Exception
++MODULE FILE LICENSE: lib/flatlaf-2.1.jar Apache License 2.0
+diff --git a/Ghidra/Framework/Docking/build.gradle b/Ghidra/Framework/Docking/build.gradle
+index 233e2ba577b..7345f0ec9fa 100644
+--- a/Ghidra/Framework/Docking/build.gradle
++++ b/Ghidra/Framework/Docking/build.gradle
+@@ -29,6 +29,7 @@ dependencies {
+ 	// Only include this debug version of the jh library if necessary.
+ 	//api name:'jh2.with.debug'
+ 	api 'javax.help:javahelp:2.0.05'
++    api 'com.formdev:flatlaf:2.1'
+ 	
+ 	
+ 	// include code from src/test in Generic
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/framework/SplashScreen.java b/Ghidra/Framework/Docking/src/main/java/docking/framework/SplashScreen.java
+index 6deff243de6..c8fdf78d6b6 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/framework/SplashScreen.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/framework/SplashScreen.java
+@@ -26,6 +26,7 @@
+ import docking.widgets.label.GDLabel;
+ import docking.widgets.label.GLabel;
+ import generic.util.WindowUtilities;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.Application;
+ import ghidra.util.Msg;
+ import utility.application.ApplicationLayout;
+@@ -331,7 +332,8 @@ private Component createStatusComponent() {
+ 		statusLabel.setFont(f);
+ 
+ 		statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 2, 10));
+-		statusLabel.setBackground(DEFAULT_BACKGROUND_COLOR);
++		if (!ColorContext.isDark)
++			statusLabel.setBackground(DEFAULT_BACKGROUND_COLOR);
+ 		statusLabel.setOpaque(true);
+ 		return statusLabel;
+ 	}
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/help/HelpManager.java b/Ghidra/Framework/Docking/src/main/java/docking/help/HelpManager.java
+index fb4a5f78e0d..e173f03a77a 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/help/HelpManager.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/help/HelpManager.java
+@@ -34,6 +34,7 @@
+ import docking.action.DockingActionIf;
+ import generic.concurrent.GThreadPool;
+ import generic.util.WindowUtilities;
++import ghidra.docking.util.ColorContext;
+ import ghidra.util.*;
+ import ghidra.util.exception.AssertException;
+ import ghidra.util.exception.CancelledException;
+@@ -685,8 +686,10 @@ private HelpSet createHelpSet(URL url, GHelpClassLoader classLoader) throws Help
+ 	 * you can see the highlights when you do a search in the JavaHelp.
+ 	 */
+ 	private void setColorResources() {
+-		UIManager.put("EditorPane.selectionBackground", new Color(204, 204, 255));
+-		UIManager.put("EditorPane.selectionForeground", UIManager.get("EditorPane.foreground"));
++		if (!ColorContext.isDark) {
++			UIManager.put("EditorPane.selectionBackground", new Color(204, 204, 255));
++			UIManager.put("EditorPane.selectionForeground", UIManager.get("EditorPane.foreground"));
++		}
+ 	}
+ 
+ 	private void displayHelpInfo(Object helpObj, HelpLocation loc, Window parent) {
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/widgets/AbstractGCellRenderer.java b/Ghidra/Framework/Docking/src/main/java/docking/widgets/AbstractGCellRenderer.java
+index 48c057437f0..7ad4a3c5505 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/widgets/AbstractGCellRenderer.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/widgets/AbstractGCellRenderer.java
+@@ -22,6 +22,7 @@
+ import javax.swing.border.Border;
+ 
+ import docking.widgets.label.GDHtmlLabel;
++import ghidra.docking.util.ColorContext;
+ 
+ /**
+  * A common base class for list and table renderer objects, unifying the Ghidra look and feel.
+@@ -99,6 +100,9 @@ public boolean shouldAlternateRowBackgroundColor() {
+ 	 * @return the color
+ 	 */
+ 	protected Color getOSDependentBackgroundColor(JComponent parent, int row) {
++		if (ColorContext.isDark) {
++			return parent.getBackground();
++		}
+ 
+ 		if (!shouldAlternateRowBackgroundColor()) {
+ 			return getDefaultBackgroundColor();
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/FieldPanel.java b/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/FieldPanel.java
+index 280612ee87c..daffaeaccd0 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/FieldPanel.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/FieldPanel.java
+@@ -38,6 +38,7 @@
+ import docking.widgets.fieldpanel.support.*;
+ import docking.widgets.indexedscrollpane.IndexScrollListener;
+ import docking.widgets.indexedscrollpane.IndexedScrollable;
++import ghidra.docking.util.ColorContext;
+ import ghidra.util.Msg;
+ import ghidra.util.SystemUtilities;
+ 
+@@ -51,7 +52,7 @@ public class FieldPanel extends JPanel
+ 	private boolean inFocus;
+ 
+ 	protected BackgroundColorModel backgroundColorModel =
+-		new DefaultBackgroundColorModel(Color.WHITE);
++		new DefaultBackgroundColorModel(ColorContext.BACKGROUND);
+ 	protected PaintContext paintContext = new PaintContext();
+ 
+ 	private AnchoredLayoutHandler layoutHandler;
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/internal/PaintContext.java b/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/internal/PaintContext.java
+index 04dd4c04b0a..3acc5050583 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/internal/PaintContext.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/widgets/fieldpanel/internal/PaintContext.java
+@@ -18,6 +18,8 @@
+ 
+ import java.awt.Color;
+ 
++import ghidra.docking.util.ColorContext;
++
+ /**
+  * Miscellaneous information needed by fields to paint.
+  */
+@@ -43,13 +45,13 @@ public class PaintContext {
+ 	 * Create a new PaintContext with default color values.
+ 	 */
+ 	public PaintContext() {
+-		defaultBackground = Color.white;
+-		background = Color.white;
+-		foreground = Color.black;
+-		selectionColor = new Color(180, 255, 180);
+-		highlightColor = new Color(255, 255, 150);
+-		selectedHighlightColor = Color.green;
+-		focusedCursorColor = Color.RED;
++		defaultBackground = ColorContext.BACKGROUND;
++		background = ColorContext.BACKGROUND;
++		foreground = ColorContext.isDark ? Color.WHITE : Color.black;
++		selectionColor = ColorContext.isDark ? new Color(86, 88, 91) : new Color(180, 255, 180);
++		highlightColor = ColorContext.isDark ? new Color(86, 88, 91) : new Color(255, 255, 150);
++		selectedHighlightColor = ColorContext.GREEN;
++		focusedCursorColor = ColorContext.RED;
+ 		cursorColor = focusedCursorColor;
+ 		invisibleCursorColor = new Color(255, 0, 0, 1);
+ 		notFocusedCursorColor = Color.PINK;
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/widgets/filechooser/GhidraFileChooser.java b/Ghidra/Framework/Docking/src/main/java/docking/widgets/filechooser/GhidraFileChooser.java
+index b5306ce8258..06794f3b7e8 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/widgets/filechooser/GhidraFileChooser.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/widgets/filechooser/GhidraFileChooser.java
+@@ -37,6 +37,7 @@
+ import docking.widgets.label.GDLabel;
+ import docking.widgets.label.GLabel;
+ import docking.widgets.list.GListCellRenderer;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.OperatingSystem;
+ import ghidra.framework.Platform;
+ import ghidra.framework.preferences.Preferences;
+@@ -308,7 +309,8 @@ File getFile() {
+ 		myComputerButton.setName("MY_COMPUTER_BUTTON");
+ 		myComputerButton.setIcon(ResourceManager.loadImage("images/computer.png"));
+ 		myComputerButton.addActionListener(e -> updateMyComputer());
+-		myComputerButton.setForeground(FOREROUND_COLOR);
++		if (!ColorContext.isDark)
++			myComputerButton.setForeground(FOREROUND_COLOR);
+ 
+ 		desktopButton = new FileChooserToggleButton("Desktop") {
+ 			@Override
+@@ -319,7 +321,8 @@ File getFile() {
+ 		desktopButton.setName("DESKTOP_BUTTON");
+ 		desktopButton.setIcon(ResourceManager.loadImage("images/desktop.png"));
+ 		desktopButton.addActionListener(e -> updateDesktop());
+-		desktopButton.setForeground(FOREROUND_COLOR);
++		if (!ColorContext.isDark)
++			desktopButton.setForeground(FOREROUND_COLOR);
+ 		desktopButton.setEnabled(fileChooserModel.getDesktopDirectory() != null);
+ 
+ 		homeButton = new FileChooserToggleButton("Home") {
+@@ -331,7 +334,8 @@ File getFile() {
+ 		homeButton.setName("HOME_BUTTON");
+ 		homeButton.setIcon(ResourceManager.loadImage("images/user-home.png"));
+ 		homeButton.addActionListener(e -> updateHome());
+-		homeButton.setForeground(FOREROUND_COLOR);
++		if (!ColorContext.isDark)
++			homeButton.setForeground(FOREROUND_COLOR);
+ 
+ 		recentButton = new FileChooserToggleButton("Recent") {
+ 			@Override
+@@ -347,7 +351,8 @@ File getFile() {
+ 
+ 		recentButton.setIcon(multiIcon);
+ 		recentButton.addActionListener(e -> updateRecent());
+-		recentButton.setForeground(FOREROUND_COLOR);
++		if (!ColorContext.isDark)
++			recentButton.setForeground(FOREROUND_COLOR);
+ 
+ 		shortCutButtonGroup = new UnselectableButtonGroup();
+ 		shortCutButtonGroup.add(myComputerButton);
+@@ -364,7 +369,8 @@ File getFile() {
+ 
+ 		JPanel panel = new JPanel(new BorderLayout());
+ 		panel.setBorder(BorderFactory.createLoweredBevelBorder());
+-		panel.setBackground(BACKGROUND_COLOR.darker());
++		if (!ColorContext.isDark)
++			panel.setBackground(BACKGROUND_COLOR.darker());
+ 		panel.add(shortCutPanel, BorderLayout.NORTH);
+ 		return panel;
+ 	}
+@@ -472,7 +478,8 @@ private JPanel buildHeaderPanel() {
+ 	private void buildWaitPanel() {
+ 		waitPanel = new JPanel(new BorderLayout());
+ 		waitPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+-		waitPanel.setBackground(BACKGROUND_COLOR);
++		if (!ColorContext.isDark)
++			waitPanel.setBackground(BACKGROUND_COLOR);
+ 		waitPanel.addMouseListener(new MouseAdapter() {
+ 			@Override
+ 			public void mouseReleased(MouseEvent e) {
+@@ -576,7 +583,8 @@ private JScrollPane buildDirectoryList() {
+ 		directoryListModel = new DirectoryListModel();
+ 		directoryList = new DirectoryList(this, directoryListModel, rootPanel.getFont());
+ 		directoryList.setName("LIST");
+-		directoryList.setBackground(BACKGROUND_COLOR);
++		if (!ColorContext.isDark)
++			directoryList.setBackground(BACKGROUND_COLOR);
+ 
+ 		directoryList.addFocusListener(new FocusAdapter() {
+ 			@Override
+@@ -586,7 +594,8 @@ public void focusGained(FocusEvent e) {
+ 		});
+ 
+ 		directoryScroll = new JScrollPane(directoryList);
+-		directoryScroll.getViewport().setBackground(BACKGROUND_COLOR);
++		if (!ColorContext.isDark)
++			directoryScroll.getViewport().setBackground(BACKGROUND_COLOR);
+ 		directoryScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+ 		directoryScroll.addComponentListener(new ComponentAdapter() {
+ 			//if the scroll pane is resized, we need to adjust
+@@ -1473,7 +1482,8 @@ private JScrollPane buildDirectoryTable() {
+ 		directoryTableModel = new DirectoryTableModel(this);
+ 		directoryTable = new DirectoryTable(this, directoryTableModel);
+ 		directoryTable.setName("TABLE");
+-		directoryTable.setBackground(BACKGROUND_COLOR);
++		if (!ColorContext.isDark)
++			directoryTable.setBackground(BACKGROUND_COLOR);
+ 
+ 		directoryTable.addFocusListener(new FocusAdapter() {
+ 			@Override
+@@ -1483,7 +1493,8 @@ public void focusGained(FocusEvent e) {
+ 		});
+ 
+ 		JScrollPane scrollPane = new JScrollPane(directoryTable);
+-		scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
++		if (!ColorContext.isDark)
++			scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
+ 		return scrollPane;
+ 	}
+ 
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableHeaderRenderer.java b/Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableHeaderRenderer.java
+index 778efa24261..eab59a5a597 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableHeaderRenderer.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/widgets/table/GTableHeaderRenderer.java
+@@ -25,6 +25,7 @@
+ import javax.swing.table.*;
+ 
+ import docking.widgets.label.GDLabel;
++import ghidra.docking.util.ColorContext;
+ import resources.*;
+ import resources.icons.EmptyIcon;
+ import resources.icons.TranslateIcon;
+@@ -219,6 +220,8 @@ protected void paintComponent(Graphics g) {
+ 	}
+ 
+ 	protected Paint getBackgroundPaint() {
++		if (ColorContext.isDark)
++			return isPaintingPrimarySortColumn ? getBackground().darker() : getBackground();
+ 		if (isPaintingPrimarySortColumn) {
+ 			return new GradientPaint(0, 0, PRIMARY_SORT_GRADIENT_START, 0, getHeight() - 11,
+ 				PRIMARY_SORT_GRADIENT_END, true);
+diff --git a/Ghidra/Framework/Docking/src/main/java/docking/widgets/textfield/HintTextField.java b/Ghidra/Framework/Docking/src/main/java/docking/widgets/textfield/HintTextField.java
+index 122abd986c4..188f49acd70 100644
+--- a/Ghidra/Framework/Docking/src/main/java/docking/widgets/textfield/HintTextField.java
++++ b/Ghidra/Framework/Docking/src/main/java/docking/widgets/textfield/HintTextField.java
+@@ -22,6 +22,8 @@
+ import javax.swing.event.DocumentEvent;
+ import javax.swing.event.DocumentListener;
+ 
++import ghidra.docking.util.ColorContext;
++
+ /**
+  * Simple text field that shows a text hint when the field is empty.
+  *
+@@ -39,7 +41,7 @@ public class HintTextField extends JTextField {
+ 	// some indication of what the field should contain.
+ 	private String hint;
+ 
+-	private Color INVALID_COLOR = new Color(255, 225, 225);
++	private Color INVALID_COLOR = ColorContext.isDark ? ColorContext.RED : new Color(255, 225, 225);
+ 	private Color VALID_COLOR = Color.WHITE;
+ 	private Color defaultBackgroundColor;
+ 
+@@ -179,7 +181,7 @@ public boolean isFieldValid() {
+ 	 */
+ 	private void setAttributes() {
+ 		setFont(getFont().deriveFont(Font.PLAIN));
+-		setForeground(Color.BLACK);
++		setForeground(ColorContext.BLACK);
+ 	}
+ 
+ 	/**
+@@ -188,7 +190,8 @@ private void setAttributes() {
+ 	 */
+ 	private void validateField() {
+ 		if (isFieldValid()) {
+-			setBackground(defaultBackgroundColor == null ? VALID_COLOR : defaultBackgroundColor);
++			if (!ColorContext.isDark)
++				setBackground(defaultBackgroundColor == null ? VALID_COLOR : defaultBackgroundColor);
+ 		}
+ 		else {
+ 			setBackground(INVALID_COLOR);
+diff --git a/Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/ColorContext.java b/Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/ColorContext.java
+new file mode 100644
+index 00000000000..3caa53529ae
+--- /dev/null
++++ b/Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/ColorContext.java
+@@ -0,0 +1,53 @@
++/* ###
++ * IP: GHIDRA
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package ghidra.docking.util;
++
++import java.awt.Color;
++
++import ghidra.docking.util.DockingWindowsLookAndFeelUtils;
++
++public interface ColorContext {
++    // isAuto indicates that we should let the LAF pick the colors, instead of using the hard-coded values
++    final boolean isAuto = DockingWindowsLookAndFeelUtils.isUsingFlatUI();
++    // isDark indicates that we're currently using a dark mode LAF
++    final boolean isDark = DockingWindowsLookAndFeelUtils.isUsingFlatDarkUI();
++
++    final Color WHITE = isDark ? new Color(197, 200, 198) : Color.WHITE;
++    final Color RED = isDark ? new Color(237, 89, 64) : Color.RED;
++    final Color DARK_GRAY = isDark ? Color.LIGHT_GRAY : Color.DARK_GRAY;
++    final Color LIGHT_GRAY = isDark ? Color.DARK_GRAY : Color.LIGHT_GRAY;
++    final Color GRAY = Color.GRAY;
++    final Color BLACK = isDark ? WHITE : Color.BLACK;
++    final Color ORANGE = isDark ? new Color(243, 164, 46) : Color.ORANGE;
++    final Color BLUE = isDark ? new Color(58, 132, 250) : Color.BLUE;
++    final Color GREEN = isDark ? new Color(105, 210, 88) : Color.GREEN;
++    final Color MAGENTA = isDark ? new Color(179, 101, 238) : Color.MAGENTA;
++
++    final Color DARK_HIGHLIGHT_FOREGROUND = new Color(86, 88, 91);
++    final Color DARK_HIGHLIGHT_BACKGROUND = new Color(55, 59, 65);
++
++    final Color BACKGROUND = isDark ? new Color(40, 42, 46) : Color.WHITE;
++    final Color SELECTION_SELECTION = isDark ? DARK_HIGHLIGHT_FOREGROUND : new Color(180, 255, 180);
++    final Color SELECTION_HIGHLIGHT = isDark ? DARK_HIGHLIGHT_FOREGROUND : new Color(255, 255, 180);
++    final Color SELECTION_DIFFERENCE = isDark ? DARK_HIGHLIGHT_FOREGROUND : new Color(255, 230, 180); // light orange
++    final Color CURSOR_HIGHLIGHT = isDark ? DARK_HIGHLIGHT_FOREGROUND : new Color(255, 255, 180);
++    final Color CURSOR_LINE = isDark ? DARK_HIGHLIGHT_BACKGROUND : new Color(232, 242, 254);
++    final Color CURSOR_TEXT_HIGHLIGHT = isDark ? DARK_HIGHLIGHT_BACKGROUND : Color.YELLOW;
++    final Color CURSOR_TEXT_SCOPED_WRITE_HIGHLIGHT = isDark ? DARK_HIGHLIGHT_BACKGROUND : new Color(204, 204, 0);
++    final Color CURSOR_TEXT_SCOPED_READ_HIGHLIGHT = isDark ? DARK_HIGHLIGHT_BACKGROUND : new Color(0, 255, 0);
++    final Color CURSOR_FOCUSED = isDark ? new Color(197, 200, 198) : Color.RED;
++    final Color CURSOR_UNFOCUSED = isDark ? new Color(55, 59, 65) : Color.PINK;
++}
+\ No newline at end of file
+diff --git a/Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/DockingWindowsLookAndFeelUtils.java b/Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/DockingWindowsLookAndFeelUtils.java
+index 4e49418168f..a46f46c85a6 100644
+--- a/Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/DockingWindowsLookAndFeelUtils.java
++++ b/Ghidra/Framework/Docking/src/main/java/ghidra/docking/util/DockingWindowsLookAndFeelUtils.java
+@@ -15,6 +15,7 @@
+  */
+ package ghidra.docking.util;
+ 
++import java.awt.Color;
+ import java.awt.Dimension;
+ import java.awt.Font;
+ import java.util.*;
+@@ -30,6 +31,8 @@
+ import ghidra.framework.preferences.Preferences;
+ import ghidra.util.*;
+ 
++import com.formdev.flatlaf.*;
++
+ /**
+  * A utility class to manage LookAndFeel (LaF) settings.
+  */
+@@ -60,6 +63,16 @@ public class DockingWindowsLookAndFeelUtils {
+ 	 */
+ 	private static final String NIMBUS_LOOK_AND_FEEL = "Nimbus";
+ 
++	/**
++	 * The flatlaf implementation of light mode.
++	 */
++	private static final String FLAT_LIGHT_LOOK_AND_FEEL = "Flat Light";
++
++	/**
++	 * The flatlaf implementation of dark mode.
++	 */
++	public static final String FLAT_DARK_LOOK_AND_FEEL = "Flat Dark";
++
+ 	private static RepaintManager defaultSwingRepaintManager = null;
+ 
+ 	private DockingWindowsLookAndFeelUtils() {
+@@ -145,6 +158,8 @@ public static void setLookAndFeel(String lookAndFeelName) {
+ 	public static List<String> getLookAndFeelNames() {
+ 		List<String> list = new ArrayList<>();
+ 		list.add(DockingWindowsLookAndFeelUtils.SYSTEM_LOOK_AND_FEEL);
++		list.add(DockingWindowsLookAndFeelUtils.FLAT_LIGHT_LOOK_AND_FEEL);
++		list.add(DockingWindowsLookAndFeelUtils.FLAT_DARK_LOOK_AND_FEEL);
+ 
+ 		LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
+ 		for (LookAndFeelInfo info : installedLookAndFeels) {
+@@ -165,6 +180,10 @@ private static void installLookAndFeelByName(String lookAndFeelName)
+ 	private static String findLookAndFeelClassName(String lookAndFeelName) {
+ 		if (lookAndFeelName.equalsIgnoreCase(SYSTEM_LOOK_AND_FEEL)) {
+ 			return UIManager.getSystemLookAndFeelClassName();
++		} else if (lookAndFeelName.equalsIgnoreCase(FLAT_LIGHT_LOOK_AND_FEEL)) {
++			return "com.formdev.flatlaf.FlatLightLaf";
++		} else if (lookAndFeelName.equalsIgnoreCase(FLAT_DARK_LOOK_AND_FEEL)) {
++			return "com.formdev.flatlaf.FlatDarkLaf";
+ 		}
+ 
+ 		LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
+@@ -188,7 +207,7 @@ public static void setUseInvertedColors(boolean useInvertedColors) {
+ 			}
+ 
+ 			RepaintManager rm = defaultSwingRepaintManager;
+-			if (useInvertedColors) {
++			if (useInvertedColors && !isUsingFlatUI()) {
+ 				rm = new GRepaintManager();
+ 			}
+ 			RepaintManager.setCurrentManager(rm);
+@@ -325,4 +344,20 @@ public static boolean isUsingNimbusUI() {
+ 		LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
+ 		return NIMBUS_LOOK_AND_FEEL.equals(lookAndFeel.getName());
+ 	}
++
++	/**
++	 * Returns true if 'Flat' is the current Look and Feel
++	 * @return true if 'Flat' is the current Look and Feel
++	 */
++	public static boolean isUsingFlatUI() {
++		return getInstalledLookAndFeelName().startsWith("FlatLaf");
++	}
++
++	/**
++	 * Returns true if 'Flat Dark' is the current Look and Feel
++	 * @return true if 'Flat Dark' is the current Look and Feel
++	 */
++	public static boolean isUsingFlatDarkUI() {
++		return getInstalledLookAndFeelName().startsWith("FlatLaf Dark");
++	}
+ }
+diff --git a/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/options/VisualGraphOptions.java b/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/options/VisualGraphOptions.java
+index 5ad0e2c9528..6b66376c3e3 100644
+--- a/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/options/VisualGraphOptions.java
++++ b/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/options/VisualGraphOptions.java
+@@ -18,6 +18,7 @@
+ import java.awt.Color;
+ 
+ import docking.DockingUtils;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.Options;
+ import ghidra.util.HelpLocation;
+ 
+@@ -56,7 +57,7 @@ public class VisualGraphOptions {
+ 		"new graphs and already rendered graphs are zoomed and positioned.  See the help for " +
+ 		"more details.";
+ 
+-	public static final Color DEFAULT_GRAPH_BACKGROUND_COLOR = Color.WHITE;
++	public static final Color DEFAULT_GRAPH_BACKGROUND_COLOR = ColorContext.isDark ? new Color(69, 73, 74) : Color.WHITE;
+ 	protected Color graphBackgroundColor = DEFAULT_GRAPH_BACKGROUND_COLOR;
+ 
+ 	protected boolean useAnimation = true;
+diff --git a/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/vertex/AbstractVisualVertexRenderer.java b/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/vertex/AbstractVisualVertexRenderer.java
+index 2a85a2a0bd3..99c5a5635ce 100644
+--- a/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/vertex/AbstractVisualVertexRenderer.java
++++ b/Ghidra/Framework/Graph/src/main/java/ghidra/graph/viewer/vertex/AbstractVisualVertexRenderer.java
+@@ -29,6 +29,7 @@
+ import edu.uci.ics.jung.visualization.transform.MutableTransformer;
+ import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
+ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
++import ghidra.docking.util.ColorContext;
+ import ghidra.graph.viewer.VisualEdge;
+ import ghidra.graph.viewer.VisualVertex;
+ 
+@@ -97,7 +98,7 @@ protected void paintHighlight(RenderContext<V, E> rc, V vertex, GraphicsDecorato
+ 		Paint oldPaint = g.getPaint();
+ 
+ 		int halfishTransparency = 150;
+-		Color yellowWithTransparency = new Color(255, 255, 0, halfishTransparency);
++		Color yellowWithTransparency = ColorContext.isDark ? new Color(55, 59, 65, halfishTransparency) : new Color(255, 255, 0, halfishTransparency);
+ 		g.setPaint(yellowWithTransparency);
+ 
+ 		int offset = 10;
+diff --git a/Ghidra/Framework/Graph/src/main/java/ghidra/service/graph/GraphDisplayOptions.java b/Ghidra/Framework/Graph/src/main/java/ghidra/service/graph/GraphDisplayOptions.java
+index c8b87337d17..781d9e06cd6 100644
+--- a/Ghidra/Framework/Graph/src/main/java/ghidra/service/graph/GraphDisplayOptions.java
++++ b/Ghidra/Framework/Graph/src/main/java/ghidra/service/graph/GraphDisplayOptions.java
+@@ -29,6 +29,7 @@
+ 
+ import docking.Tool;
+ import docking.options.editor.*;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.options.*;
+ import ghidra.util.HelpLocation;
+ import ghidra.util.WebColors;
+@@ -68,10 +69,10 @@ public class GraphDisplayOptions implements OptionsChangeListener {
+ 	private Map<String, Integer> edgePriorityMap = new HashMap<>();
+ 	private List<ChangeListener> changeListeners = new CopyOnWriteArrayList<>();
+ 
+-	private Color vertexSelectionColor = Color.green;
+-	private Color edgeSelectionColor = Color.green;
+-	private Color defaultVertexColor = Color.blue;
+-	private Color defaultEdgeColor = Color.blue;
++	private Color vertexSelectionColor = ColorContext.GREEN;
++	private Color edgeSelectionColor = ColorContext.GREEN;
++	private Color defaultVertexColor = ColorContext.BLUE;
++	private Color defaultEdgeColor = ColorContext.BLUE;
+ 	private String favoredEdgeType;
+ 
+ 	private VertexShape defaultVertexShape = VertexShape.RECTANGLE;
+diff --git a/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/AbstractDetailsPanel.java b/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/AbstractDetailsPanel.java
+index ba979a4a24c..9ee9724302c 100644
+--- a/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/AbstractDetailsPanel.java
++++ b/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/AbstractDetailsPanel.java
+@@ -24,6 +24,7 @@
+ import javax.swing.text.StyleConstants;
+ 
+ import docking.widgets.label.GDHtmlLabel;
++import ghidra.docking.util.ColorContext;
+ import ghidra.util.HTMLUtilities;
+ 
+ /**
+@@ -118,7 +119,8 @@ public Dimension getPreferredSize() {
+ 
+ 		textLabel.setVerticalAlignment(SwingConstants.TOP);
+ 		textLabel.setOpaque(true);
+-		textLabel.setBackground(Color.WHITE);
++		if (!ColorContext.isDark)
++			textLabel.setBackground(Color.WHITE);
+ 		sp = new JScrollPane(textLabel);
+ 		sp.getVerticalScrollBar().setUnitIncrement(10);
+ 		sp.setPreferredSize(new Dimension(MIN_WIDTH, 200));
+diff --git a/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginDetailsPanel.java b/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginDetailsPanel.java
+index 973306fb3da..0360d20def3 100644
+--- a/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginDetailsPanel.java
++++ b/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginDetailsPanel.java
+@@ -26,6 +26,7 @@
+ import docking.action.DockingActionIf;
+ import docking.action.MenuData;
+ import docking.actions.KeyBindingUtils;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.plugintool.PluginConfigurationModel;
+ import ghidra.framework.plugintool.PluginTool;
+ import ghidra.framework.plugintool.util.PluginDescription;
+@@ -245,60 +246,60 @@ protected void createFieldAttributes() {
+ 		titleAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		titleAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		titleAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		titleAttrSet.addAttribute(StyleConstants.Foreground, new Color(140, 0, 0));
++		titleAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.isDark ? ColorContext.RED : new Color(140, 0, 0));
+ 
+ 		nameAttrSet = new SimpleAttributeSet();
+ 		nameAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		nameAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		nameAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		nameAttrSet.addAttribute(StyleConstants.Foreground, new Color(0, 204, 51));
++		nameAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.isDark ? ColorContext.GREEN : new Color(0, 204, 51));
+ 
+ 		depNameAttrSet = new SimpleAttributeSet();
+ 		depNameAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		depNameAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		depNameAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		depNameAttrSet.addAttribute(StyleConstants.Foreground, Color.RED);
++		depNameAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.RED);
+ 
+ 		descrAttrSet = new SimpleAttributeSet();
+ 		descrAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		descrAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		descrAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		descrAttrSet.addAttribute(StyleConstants.Foreground, Color.BLUE);
++		descrAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.BLUE);
+ 
+ 		categoriesAttrSet = new SimpleAttributeSet();
+ 		categoriesAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		categoriesAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		categoriesAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		categoriesAttrSet.addAttribute(StyleConstants.Foreground, new Color(204, 0, 204));
++		categoriesAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.isDark ? ColorContext.MAGENTA : new Color(204, 0, 204));
+ 
+ 		classAttrSet = new SimpleAttributeSet();
+ 		classAttrSet.addAttribute(StyleConstants.FontFamily, "monospaced");
+ 		classAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		classAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		classAttrSet.addAttribute(StyleConstants.Foreground, Color.BLACK);
++		classAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.BLACK);
+ 
+ 		locAttrSet = new SimpleAttributeSet();
+ 		locAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		locAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		locAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		locAttrSet.addAttribute(StyleConstants.Foreground, Color.DARK_GRAY);
++		locAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.DARK_GRAY);
+ 
+ 		developerAttrSet = new SimpleAttributeSet();
+ 		developerAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		developerAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		developerAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		developerAttrSet.addAttribute(StyleConstants.Foreground, new Color(230, 15, 85));
++		developerAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.isDark ? ColorContext.RED : new Color(230, 15, 85));
+ 
+ 		dependencyAttrSet = new SimpleAttributeSet();
+ 		dependencyAttrSet.addAttribute(StyleConstants.FontFamily, "monospaced");
+ 		dependencyAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		dependencyAttrSet.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+-		dependencyAttrSet.addAttribute(StyleConstants.Foreground, new Color(23, 100, 30));
++		dependencyAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.isDark ? ColorContext.GREEN : new Color(23, 100, 30));
+ 
+ 		noValueAttrSet = new SimpleAttributeSet();
+ 		noValueAttrSet.addAttribute(StyleConstants.FontFamily, "Tahoma");
+ 		noValueAttrSet.addAttribute(StyleConstants.FontSize, Integer.valueOf(11));
+ 		noValueAttrSet.addAttribute(StyleConstants.Italic, Boolean.TRUE);
+-		noValueAttrSet.addAttribute(StyleConstants.Foreground, new Color(192, 192, 192));
++		noValueAttrSet.addAttribute(StyleConstants.Foreground, ColorContext.LIGHT_GRAY);
+ 	}
+ }
+diff --git a/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginManagerComponent.java b/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginManagerComponent.java
+index af96ae32981..26e7f0a1a83 100644
+--- a/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginManagerComponent.java
++++ b/Ghidra/Framework/Project/src/main/java/ghidra/framework/plugintool/dialog/PluginManagerComponent.java
+@@ -26,6 +26,7 @@
+ import docking.widgets.HyperlinkComponent;
+ import docking.widgets.checkbox.GCheckBox;
+ import docking.widgets.label.*;
++import ghidra.docking.util.ColorContext;
+ import ghidra.framework.plugintool.PluginConfigurationModel;
+ import ghidra.framework.plugintool.PluginTool;
+ import ghidra.framework.plugintool.util.*;
+@@ -45,7 +46,8 @@ public class PluginManagerComponent extends JPanel implements Scrollable {
+ 	PluginManagerComponent(PluginTool tool, PluginConfigurationModel model) {
+ 		super(new VerticalLayout(2));
+ 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+-		setBackground(Color.WHITE);
++		if (!ColorContext.isDark)
++			setBackground(Color.WHITE);
+ 		this.tool = tool;
+ 		this.model = model;
+ 		model.setChangeCallback(this::updateCheckboxes);
+@@ -114,7 +116,7 @@ boolean isAddAllCheckBoxEnabled(PluginPackage pluginPackage) {
+ //=================================================================================================
+ 
+ 	private class PluginPackageComponent extends JPanel {
+-		private final Color BG = Color.white;
++		private Color BG = ColorContext.isDark ? getBackground() : Color.white;
+ 		private final PluginPackage pluginPackage;
+ 		private final GCheckBox checkBox;
+ 
+@@ -129,7 +131,7 @@ private class PluginPackageComponent extends JPanel {
+ 			initializeLabelSection();
+ 			initializeDescriptionSection();
+ 
+-			setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
++			setBorder(BorderFactory.createLineBorder(ColorContext.DARK_GRAY));
+ 			updateCheckBoxState();
+ 		}
+ 
+@@ -176,7 +178,8 @@ private void initializeLabelSection() {
+ 
+ 			GLabel nameLabel = new GLabel(pluginPackage.getName());
+ 			nameLabel.setFont(nameLabel.getFont().deriveFont(18f));
+-			nameLabel.setForeground(Color.BLACK);
++			if (!ColorContext.isDark)
++				nameLabel.setForeground(Color.BLACK);
+ 			labelPanel.add(nameLabel);
+ 
+ 			HyperlinkComponent configureHyperlink = createConfigureHyperlink();
+@@ -207,7 +210,8 @@ private void initializeDescriptionSection() {
+ 			String htmlDescription = enchanceDescription(pluginPackage.getDescription());
+ 
+ 			JLabel descriptionlabel = new GHtmlLabel(htmlDescription);
+-			descriptionlabel.setForeground(Color.GRAY);
++			if (!ColorContext.isDark)
++				descriptionlabel.setForeground(Color.GRAY);
+ 			descriptionlabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+ 			descriptionlabel.setVerticalAlignment(SwingConstants.TOP);
+ 			descriptionlabel.setToolTipText(
