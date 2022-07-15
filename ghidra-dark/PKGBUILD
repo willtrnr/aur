@@ -2,7 +2,7 @@
 # Based on AUR ghidra-git
 
 pkgname=ghidra-dark-git
-pkgver=10.1.4.r960.a59c42dd9
+pkgver=10.1.4.r1064.ca60845ee
 pkgrel=1
 pkgdesc='Software reverse engineering framework (dark mode patch)'
 arch=('x86_64')

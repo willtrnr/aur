@@ -1,6 +1,6 @@
 pkgbase = ghidra-dark-git
 	pkgdesc = Software reverse engineering framework (dark mode patch)
-	pkgver = 10.1.4.r960.a59c42dd9
+	pkgver = 10.1.4.r1064.ca60845ee
 	pkgrel = 1
 	url = https://www.nsa.gov/ghidra
 	arch = x86_64
