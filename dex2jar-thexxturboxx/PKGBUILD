@@ -20,6 +20,13 @@ pkgver() {
   echo "${_pkgver}.${_pkgpatch}"
 }
 
+prepare() {
+  cd "$srcdir/dex-tools-${_pkgver}-SNAPSHOT"
+
+ # Remove Java heap parameters from scripts
+  sed -i -E 's/\s+-Xm[sx][0-9]+m//g' *.sh
+}
+
 package() {
   cd "$srcdir/dex-tools-${_pkgver}-SNAPSHOT"
 
