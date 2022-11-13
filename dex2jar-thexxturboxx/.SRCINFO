@@ -1,6 +1,6 @@
 pkgbase = dex2jar-thexxturboxx
 	pkgdesc = Tools to work with android .dex and java .class files (Nico Mexis fork)
-	pkgver = 2.1.52
+	pkgver = 2.1.57
 	pkgrel = 1
 	url = https://github.com/ThexXTURBOXx/dex2jar
 	arch = any
@@ -9,7 +9,7 @@ pkgbase = dex2jar-thexxturboxx
 	depends = bash
 	provides = dex2jar
 	conflicts = dex2jar
-	source = https://github.com/ThexXTURBOXx/dex2jar/releases/download/v52/dex-tools-2.1-SNAPSHOT.zip
-	sha256sums = d7d3ae40b941b8611a345803143b28b44c7b0d44602b206eec5f8bde0e649468
+	source = https://github.com/ThexXTURBOXx/dex2jar/releases/download/v57/dex-tools-2.1-SNAPSHOT.zip
+	sha256sums = 67d6f7c10ddf48162fb212bc4df247a4a10fd9212108f19800654c2b3408928e
 
 pkgname = dex2jar-thexxturboxx

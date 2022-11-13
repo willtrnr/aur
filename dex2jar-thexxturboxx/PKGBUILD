@@ -3,8 +3,8 @@
 _pkgname=dex2jar
 pkgname=dex2jar-thexxturboxx
 _pkgver=2.1
-_pkgpatch=52
-pkgver=2.1.52
+_pkgpatch=57
+pkgver=2.1.57
 pkgrel=1
 pkgdesc="Tools to work with android .dex and java .class files (Nico Mexis fork)"
 arch=(any)
@@ -14,7 +14,7 @@ depends=('java-runtime' 'bash')
 provides=("${_pkgname}")
 conflicts=("${_pkgname}")
 source=("https://github.com/ThexXTURBOXx/${_pkgname}/releases/download/v${_pkgpatch}/dex-tools-${_pkgver}-SNAPSHOT.zip")
-sha256sums=('d7d3ae40b941b8611a345803143b28b44c7b0d44602b206eec5f8bde0e649468')
+sha256sums=('67d6f7c10ddf48162fb212bc4df247a4a10fd9212108f19800654c2b3408928e')
 
 pkgver() {
   echo "${_pkgver}.${_pkgpatch}"
