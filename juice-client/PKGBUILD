@@ -1,0 +1,36 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+pkgname=juice-client
+_pkgname=JuiceClient
+pkgver=2022.12.13.2258
+_pkgver=2022-12-13-2258-fb13d0cc
+pkgrel=1
+epoch=
+pkgdesc="Juice GPU-over-IP - Client"
+arch=(x86_64)
+url="https://www.juicelabs.co/"
+license=('custom')
+depends=(libvulkan.so=1
+         libavcodec.so=59
+         libavutil.so=57
+         libswscale.so=6)
+source=("https://github.com/Juice-Labs/Juice-Labs/releases/download/${_pkgver}/${_pkgname}-ubuntu-22.tar.gz")
+sha256sums=('d215ffb7daeec71a630ee7ea35a5e4688c366c18007bdfc5a91d5b3e40524da7')
+
+package() {
+  install -d -m755 "${pkgdir}/opt/${pkgname}"
+
+  install -m755 juicify "${pkgdir}/opt/${pkgname}/"
+
+  for f in JuiceVlk.so libjuiceclient.so libjuicejuda.so libJuicevulkan.so libtbb.so*; do
+    install -m644 "$f" "${pkgdir}/opt/${pkgname}/"
+  done
+
+  for f in dxvk.conf juice.cfg JuiceVlk.json; do
+    install -m644 "$f" "${pkgdir}/opt/${pkgname}/"
+  done
+
+  install -d -m755 "${pkgdir}/usr/bin"
+  ln -s "/opt/${pkgname}/juicify" "${pkgdir}/usr/bin/juicify"
+
+  install -D -m644 TERMS.md "${pkgdir}/usr/share/licenses/${pkgname}/TERMS.md"
+}
