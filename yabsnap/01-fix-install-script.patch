@@ -1,0 +1,17 @@
+diff --color -Naur a/scripts/install-to-dest.sh b/scripts/install-to-dest.sh
+--- a/scripts/install-to-dest.sh	2023-07-02 02:39:08.647793392 -0400
++++ b/scripts/install-to-dest.sh	2023-07-02 02:40:01.719072663 -0400
+@@ -38,12 +38,11 @@
+ 
+ mkdir -p $PKGDIR/usr/bin
+ ln -sf /usr/share/yabsnap/yabsnap.sh $PKGDIR/usr/bin/yabsnap
+-chmod 755 $PKGDIR/usr/bin/yabsnap
++chmod 755 $PKGDIR/usr/share/yabsnap/yabsnap.sh
+ 
+ mkdir -p $PKGDIR/usr/lib/systemd/system
+ install -Z artifacts/services/yabsnap.service $PKGDIR/usr/lib/systemd/system
+ install -Z artifacts/services/yabsnap.timer $PKGDIR/usr/lib/systemd/system
+-sudo systemctl daemon-reload
+ 
+ readonly HOOKDIR=/usr/share/libalpm/hooks/
+ if [[ -d "$HOOKDIR" ]]; then

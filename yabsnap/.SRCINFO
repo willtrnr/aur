@@ -11,6 +11,8 @@ pkgbase = yabsnap
 	depends = python3
 	provides = yabsnap
 	source = https://github.com/hirak99/yabsnap/archive/refs/tags/v2.0.2.tar.gz
-	md5sums = 6ea5a2c64d6818d104dc399b9e36aa8a
+	source = 01-fix-install-script.patch
+	sha256sums = dbf1f2a9be6174e36e74e5cff96215691ee7212243c57e5b30315d7b66bcc7bd
+	sha256sums = 390fedf1a0690618e69a0a714fc602e00e6b6deae556dbafffc1bcb456a9dfaa
 
 pkgname = yabsnap
