@@ -11,7 +11,7 @@ I will generally publish built versions (not guaranteed) to my public pacman rep
 Import my PGP key:
 ```sh
 $ sudo pacman-key --recv A879430AF260A189
-$ sudo pacman-key --lsign a879430af260a189
+$ sudo pacman-key --lsign A879430AF260A189
 ```
 
 Add to your `pacman.conf`:
