@@ -1,7 +1,7 @@
 pkgbase = redsocks2-git
 	pkgdesc = redsocks2
-	pkgver = 0.67.r36.g1951b49
-	pkgrel = 2
+	pkgver = 0.67.r40.g2db0ba8
+	pkgrel = 1
 	url = https://github.com/semigodking/redsocks
 	install = redsocks2.install
 	arch = i686

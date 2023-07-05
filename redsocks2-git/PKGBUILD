@@ -5,8 +5,8 @@
 
 _pkgname=redsocks
 pkgname=${_pkgname}2-git
-pkgver=0.67.r36.g1951b49
-pkgrel=2
+pkgver=0.67.r40.g2db0ba8
+pkgrel=1
 pkgdesc='redsocks2'
 arch=('i686' 'x86_64')
 url='https://github.com/semigodking/redsocks'
