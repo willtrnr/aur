@@ -1,7 +1,14 @@
 diff --color -Naur a/scripts/install-to-dest.sh b/scripts/install-to-dest.sh
---- a/scripts/install-to-dest.sh	2023-07-02 02:39:08.647793392 -0400
-+++ b/scripts/install-to-dest.sh	2023-07-02 02:40:01.719072663 -0400
-@@ -38,12 +38,11 @@
+--- a/scripts/install-to-dest.sh	2023-06-15 21:56:45.000000000 -0400
++++ b/scripts/install-to-dest.sh	2023-07-04 23:54:32.389633289 -0400
+@@ -31,19 +31,17 @@
+   --exclude '*' \
+   --prune-empty-dirs \
+   --delete
+-chmod -R g-w,a-w src/ $PKGDIR/usr/share/yabsnap
+ if $(which selinuxenabled 2>/dev/null); then
+   restorecon -R src/ $PKGDIR/usr/share/yabsnap
+ fi
  
  mkdir -p $PKGDIR/usr/bin
  ln -sf /usr/share/yabsnap/yabsnap.sh $PKGDIR/usr/bin/yabsnap
