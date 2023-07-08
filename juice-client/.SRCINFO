@@ -1,15 +1,18 @@
 pkgbase = juice-client
 	pkgdesc = Juice GPU-over-IP - Client
-	pkgver = 2022.12.13.2258
+	pkgver = 2023.06.07.136
 	pkgrel = 1
 	url = https://www.juicelabs.co/
 	arch = x86_64
 	license = custom
-	depends = libvulkan.so=1
-	depends = libavcodec.so=59
-	depends = libavutil.so=57
-	depends = libswscale.so=6
-	source = https://github.com/Juice-Labs/Juice-Labs/releases/download/2022-12-13-2258-fb13d0cc/JuiceClient-ubuntu-22.tar.gz
-	sha256sums = d215ffb7daeec71a630ee7ea35a5e4688c366c18007bdfc5a91d5b3e40524da7
+	depends = ffmpeg4.4
+	depends = glibc
+	depends = nvidia-utils
+	depends = vulkan-icd-loader
+	backup = opt/juice-client/juice.cfg
+	source = https://github.com/Juice-Labs/Juice-Labs/releases/download/2023.06.07-0136.d9bc8ad1/JuiceClient-linux.tar.gz
+	source = tmpfile.conf
+	sha256sums = 4e13270bef69c58f8c9f71a817f82412d47843bb62fc24fb3e32a327f55148dc
+	sha256sums = 55858c6f1dca1aa6d0d3ba06daa6599cc63b7798cc6f59810567d8fc955ce73b
 
 pkgname = juice-client
