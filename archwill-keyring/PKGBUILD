@@ -1,0 +1,31 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+pkgname=archwill-keyring
+pkgver=20230718
+pkgrel=1
+pkgdesc="Archwill PGP keyring"
+arch=('any')
+url='https://github.com/willtrnr/archwill-keyring'
+license=('GPL3')
+depends=('pacman')
+makedepends=('git' 'python' 'sequoia-sq')
+checkdepends=('python-coverage' 'python-pytest')
+install="$pkgname.install"
+source=("${pkgname}::git+${url}.git#tag=${pkgver}?signed")
+sha256sums=('SKIP')
+validpgpkeys=('26CA59F459B6865CE0BF3172A879430AF260A189')
+
+build() {
+	cd "$pkgname"
+	make build
+}
+
+check() {
+	cd "$pkgname"
+	make check
+}
+
+package() {
+	cd "$pkgname"
+	make PREFIX=/usr DESTDIR="${pkgdir}" install
+}

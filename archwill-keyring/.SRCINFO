@@ -1,0 +1,19 @@
+pkgbase = archwill-keyring
+	pkgdesc = Archwill PGP keyring
+	pkgver = 20230718
+	pkgrel = 1
+	url = https://github.com/willtrnr/archwill-keyring
+	install = archwill-keyring.install
+	arch = any
+	license = GPL3
+	checkdepends = python-coverage
+	checkdepends = python-pytest
+	makedepends = git
+	makedepends = python
+	makedepends = sequoia-sq
+	depends = pacman
+	source = archwill-keyring::git+https://github.com/willtrnr/archwill-keyring.git#tag=20230718?signed
+	validpgpkeys = 26CA59F459B6865CE0BF3172A879430AF260A189
+	sha256sums = SKIP
+
+pkgname = archwill-keyring
