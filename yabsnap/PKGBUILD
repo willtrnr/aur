@@ -2,7 +2,7 @@
 
 pkgname=yabsnap
 pkgver=2.0.2
-pkgrel=2
+pkgrel=3
 pkgdesc="Btrfs automated snapshot manager."
 arch=('any')
 url="https://github.com/hirak99/yabsnap"
@@ -19,7 +19,7 @@ provides=('yabsnap')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz"
         01-fix-install-script.patch)
 sha256sums=('dbf1f2a9be6174e36e74e5cff96215691ee7212243c57e5b30315d7b66bcc7bd'
-            '2979313eec14dc849df136e866461bf8506e107bd730e3d8fa9383e949650a8a')
+            '65a086eb98349dc924ba6ba07428f300159c1d4857870788966ab24f3ab8618a')
 
 prepare() {
   cd "$pkgname"-$pkgver
