@@ -1,0 +1,46 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+pkgname=git-credential-netrc
+pkgver=2.41.0
+pkgrel=1
+pkgdesc="git-credentials helper for netrc"
+arch=('x86_64')
+url='https://git-scm.com/'
+license=('GPL2')
+depends=('perl')
+makedepends=('python')
+source=("https://www.kernel.org/pub/software/scm/git/git-${pkgver}.tar."{xz,sign})
+sha256sums=('e748bafd424cfe80b212cbc6f1bbccc3a47d4862fb1eb7988877750478568040'
+            'SKIP')
+validpgpkeys=('96E07AF25771955980DAD10020D04E5A713660A7')
+
+_make() {
+  local make_options=(
+    prefix='/usr'
+    gitexecdir='/usr/lib/git-core'
+    perllibdir="$(/usr/bin/perl -MConfig -wle 'print $Config{installvendorlib}')"
+
+    CFLAGS="${CFLAGS}"
+    LDFLAGS="${LDFLAGS}"
+    INSTALL_SYMLINKS=1
+    MAN_BOLD_LITERAL=1
+    NO_PERL_CPAN_FALLBACKS=1
+    USE_LIBPCRE2=1
+  )
+
+  make "${make_options[@]}" "$@"
+}
+
+build() {
+	cd "${srcdir}/git-${pkgver}"
+
+	_make -C contrib/credential/netrc build
+}
+
+package() {
+	cd "${srcdir}/git-${pkgver}"
+
+  install -d -m0755 "${pkgdir}/usr/lib/git-core"
+
+	_make -C contrib/credential/netrc DESTDIR="${pkgdir}" install
+}
