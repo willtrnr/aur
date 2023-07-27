@@ -6,7 +6,7 @@ diff --color -Naur a/src/code/snap_operator.py b/src/code/snap_operator.py
  
          # Clean up old snaps; leave count-1 previous snaps (plus the one now created).
 -        for expired in previous_snaps[: -count + 1]:
-+        for expired in previous_snaps[: len(previous_snaps) - (count - 1)]:
++        for expired in previous_snaps[: max(0, len(previous_snaps) - (count - 1))]:
              expired.delete()
              self.need_sync = True
  
