@@ -1,37 +1,54 @@
-# Maintainer: Arnab Bose <hirak99+arch@gmail.com>
+# Maintainer: William Turner <willtur.will@gmail.com>
+# Contributor: Arnab Bose <hirak99+arch@gmail.com>
 
 pkgname=yabsnap
 pkgver=2.0.2
-pkgrel=3
+pkgrel=4
 pkgdesc="Btrfs automated snapshot manager."
 arch=('any')
-url="https://github.com/hirak99/yabsnap"
+url='https://github.com/hirak99/yabsnap'
 license=('Apache')
-# Dependencies -
-# btrfs-progs: Required for btrfs operations. May change if we extend into rsync
-#   rsync based options.
-# coreutils: For stat. Should be part of base.
-#   Opinion is split on whether to include coreutils, err on including it.
-# python3: Runtime. Typically present in a base install.
-depends=('btrfs-progs' 'coreutils' 'python3')
+depends=('bash'
+         'btrfs-progs'
+         'coreutils'
+         'python3')
 makedepends=('rsync')
-provides=('yabsnap')
-source=("$url/archive/refs/tags/v$pkgver.tar.gz"
-        01-fix-install-script.patch)
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz"
+        01-fix-install-script.patch
+        02-fix-expired-selection.patch)
 sha256sums=('dbf1f2a9be6174e36e74e5cff96215691ee7212243c57e5b30315d7b66bcc7bd'
-            '65a086eb98349dc924ba6ba07428f300159c1d4857870788966ab24f3ab8618a')
+            '65a086eb98349dc924ba6ba07428f300159c1d4857870788966ab24f3ab8618a'
+            'bf4b0e788f25fb0befc01d369cb7b2f9212943249bd93beeab1ba57f58f5bf1c')
 
 prepare() {
-  cd "$pkgname"-$pkgver
-  patch -p1 -i "$srcdir/01-fix-install-script.patch"
+  cd "${pkgname}-${pkgver}"
+
+  for f in "${source[@]}"; do
+    if [[ "$f" == *.patch ]]; then
+      patch -p1 -i "${srcdir}/$f"
+    fi
+  done
 }
 
 check() {
-  cd "$pkgname"-$pkgver
+  cd "${pkgname}-${pkgver}"
+
   src/run_tests.sh
 }
 
 package() {
-  cd "$pkgname"-$pkgver
-  scripts/install-to-dest.sh "$pkgdir"
+  cd "${pkgname}-${pkgver}"
+
+  # Use provided install script
+  scripts/install-to-dest.sh "${pkgdir}"
+
+  # Track the config path
+  install -d -m0755 "${pkgdir}/etc/yabsnap/configs"
+
+  # Pre-compile all python files
+  python3 -m compileall -f -s "${pkgdir}" -e "${pkgdir}" \
+    "${pkgdir}/usr/share/yabsnap/code"
+
+  # Remove unnecessary test scripts
+  rm -f "${pkgdir}/usr/share/yabsnap/"*_tests.sh
 }
