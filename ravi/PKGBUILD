@@ -1,31 +1,37 @@
-pkgname=ravi
-pkgver=1.0.beta7
-pkgrel=1
-pkgdesc='A derivative of Lua 5.3 with limited optional static typing and LLVM and libgccjit based JIT compilers'
-arch=(i686 x86_64)
-url='https://github.com/dibyendumajumdar/ravi'
-license=(MIT)
-makedepends=(cmake git)
-source=('git+https://github.com/dibyendumajumdar/ravi.git#tag=1.0-beta7')
-sha1sums=('SKIP')
+# Maintainer: William Turner <willtur.will@gmail.com>
 
-pkgver() {
-  cd ravi
-  git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
+pkgname=ravi
+_pkgver=1.0-beta11
+pkgver="${_pkgver//-/.}"
+pkgrel=1
+pkgdesc="Dialect of Lua, featuring limited optional static typing, JIT and AOT compilers."
+arch=(x86_64)
+url="http://ravilang.github.io/"
+license=('MIT')
+depends=(glibc)
+makedepends=(cmake git)
+source=("$pkgname-$pkgver::git+https://github.com/dibyendumajumdar/ravi.git#tag=$_pkgver")
+sha256sums=('SKIP')
 
 prepare() {
-  cd ravi
-  sed -i 's/usr\/local/usr/' include/luaconf.h
+	cd "$pkgname-$pkgver"
+
+  sed -i 's;usr/local;usr;' include/luaconf.h
+  sed -i "s;DESTINATION cmake;DESTINATION lib/cmake/$pkgname;" CMakeLists.txt
 }
 
 build() {
-  cd ravi
-  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RELEASE .
-  make
+	cd "$pkgname-$pkgver"
+
+  cmake -B build \
+    -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr
+
+  make -C build
 }
 
 package() {
-  cd ravi
-  make DESTDIR="$pkgdir" install
+	cd "$pkgname-$pkgver"
+
+  make -C build install DESTDIR="$pkgdir"
 }
