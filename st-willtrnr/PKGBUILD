@@ -3,7 +3,7 @@
 _pkgname=st
 pkgname="${_pkgname}-willtrnr"
 pkgver=0.9
-pkgrel=1
+pkgrel=2
 pkgdesc="A simple virtual terminal emulator for X."
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
 url='https://st.suckless.org'
@@ -17,6 +17,7 @@ provides=('st')
 conflicts=('st')
 source=("https://dl.suckless.org/${_pkgname}/${_pkgname}-${pkgver}.tar.gz"
         "st-desktopentry.patch::https://st.suckless.org/patches/desktopentry/st-desktopentry-0.8.5.diff"
+        "st-delkey.patch::https://st.suckless.org/patches/delkey/st-delkey-20201112-4ef0cbd.diff"
         "st-csi_22_23.patch::https://st.suckless.org/patches/csi_22_23/st-csi_22_23-0.8.5.diff"
         "st-scrollback.patch::https://st.suckless.org/patches/scrollback/st-scrollback-ringbuffer-0.8.5.diff"
         "st-scrollback-mouse.patch::https://st.suckless.org/patches/scrollback/st-scrollback-mouse-20220127-2c5edf2.diff"
@@ -26,6 +27,7 @@ source=("https://dl.suckless.org/${_pkgname}/${_pkgname}-${pkgver}.tar.gz"
         font.patch)
 sha256sums=('f36359799734eae785becb374063f0be833cf22f88b4f169cd251b99324e08e7'
             '9c59fdeaab64e3cc2db524ab6c12147476a9792c46a217e3a5f47029a42919da'
+            '946051d123dfe21d8f5ef0f1070c473443f4779dc0bd7edf7c8497f67e325a49'
             '09c0be7877dcaa07c83600f9e65aa18374e53eddd836b49859c0f782ab771f70'
             'b054f3c4b5a076645aecd927658ae7027a0c4b859cbd0b9a42fab07fdf7cbc77'
             '46ac9bcdbfeb0011533207cb0ab31657a3eb9196da1d0db346e6a9d1fc4b4f76'
@@ -36,6 +38,9 @@ sha256sums=('f36359799734eae785becb374063f0be833cf22f88b4f169cd251b99324e08e7'
 
 prepare() {
   cd "${_pkgname}-${pkgver}"
+
+  # Quick'n'dirty fix
+  sed -i 's;config.def.h;a/config.def.h;' "${srcdir}/st-delkey.patch"
 
   for f in "${source[@]}"; do
     if [[ "${f%%::*}" == *.patch ]]; then
