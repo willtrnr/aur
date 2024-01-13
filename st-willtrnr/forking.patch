@@ -1,0 +1,30 @@
+diff --color -Naur a/x.c b/x.c
+--- a/x.c	2022-10-04 13:41:26.000000000 -0400
++++ b/x.c	2024-01-13 03:35:12.535138622 -0500
+@@ -2082,15 +2082,17 @@
+ 	if (!opt_title)
+ 		opt_title = (opt_line || !opt_cmd) ? "st" : opt_cmd[0];
+ 
+-	setlocale(LC_CTYPE, "");
+-	XSetLocaleModifiers("");
+-	cols = MAX(cols, 1);
+-	rows = MAX(rows, 1);
+-	tnew(cols, rows);
+-	xinit(cols, rows);
+-	xsetenv();
+-	selinit();
+-	run();
++	if (fork() == 0) {
++		setlocale(LC_CTYPE, "");
++		XSetLocaleModifiers("");
++		cols = MAX(cols, 1);
++		rows = MAX(rows, 1);
++		tnew(cols, rows);
++		xinit(cols, rows);
++		xsetenv();
++		selinit();
++		run();
++	}
+ 
+ 	return 0;
+ }
