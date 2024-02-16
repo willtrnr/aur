@@ -3,7 +3,7 @@
 _pkgname=st
 pkgname="${_pkgname}-willtrnr"
 pkgver=0.9
-pkgrel=3
+pkgrel=4
 pkgdesc="A simple virtual terminal emulator for X."
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
 url='https://st.suckless.org'
@@ -41,8 +41,11 @@ sha256sums=('f36359799734eae785becb374063f0be833cf22f88b4f169cd251b99324e08e7'
 prepare() {
   cd "${_pkgname}-${pkgver}"
 
-  # Quick'n'dirty fix
+  # Adjust path for -p1
   sed -i 's;config.def.h;a/config.def.h;' "${srcdir}/st-delkey.patch"
+
+  # Scroll 3 lines instead of the default 1
+  sed -i 's/i = 1/i = 3/' "${srcdir}/st-scrollback-mouse.patch"
 
   for f in "${source[@]}"; do
     if [[ "${f%%::*}" == *.patch ]]; then
