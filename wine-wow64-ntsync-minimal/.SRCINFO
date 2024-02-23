@@ -1,18 +1,18 @@
 pkgbase = wine-wow64-ntsync-minimal
-	pkgdesc = A compatibility layer for running Windows programs (headless WOW64 with NTSync)
+	pkgdesc = A compatibility layer for running Windows programs (minimal Wow64 with NTSync)
 	pkgver = 9.2
 	pkgrel = 1
 	url = https://www.winehq.org
 	arch = x86_64
 	license = LGPL
 	makedepends = mingw-w64-gcc
+	makedepends = ntsync-header
 	depends = libpcap
 	depends = libunwind
 	depends = libx11
 	depends = libxext
 	provides = wine=9.2
 	conflicts = wine
-	options = staticlibs
 	options = !lto
 	source = https://dl.winehq.org/wine/source/9.x/wine-9.2.tar.xz
 	source = https://raw.githubusercontent.com/Frogging-Family/wine-tkg-git/b1d7ee352c4f4e1dcbc1cbf738975e51b87d6113/wine-tkg-git/wine-tkg-patches/misc/fastsync/ntsync5.patch

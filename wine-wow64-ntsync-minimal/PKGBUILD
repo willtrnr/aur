@@ -5,7 +5,7 @@ pkgver=9.2
 _pkgver="${pkgver/rc/-rc}"
 _ntsync_patch='b1d7ee352c4f4e1dcbc1cbf738975e51b87d6113'
 pkgrel=1
-pkgdesc='A compatibility layer for running Windows programs (headless WOW64 with NTSync)'
+pkgdesc='A compatibility layer for running Windows programs (minimal Wow64 with NTSync)'
 arch=('x86_64')
 url='https://www.winehq.org'
 license=('LGPL')
@@ -13,11 +13,12 @@ depends=('libpcap'
          'libunwind'
          'libx11'
          'libxext')
-makedepends=('mingw-w64-gcc')
-provides=("wine=$pkgver")
+makedepends=('mingw-w64-gcc'
+             'ntsync-header')
+provides=("wine=${pkgver}")
 conflicts=('wine')
-options=(staticlibs !lto)
-source=("https://dl.winehq.org/wine/source/${pkgver::1}.x/wine-$_pkgver.tar.xz"
+options=(!lto)
+source=("https://dl.winehq.org/wine/source/${pkgver::1}.x/wine-${_pkgver}.tar.xz"
         "https://raw.githubusercontent.com/Frogging-Family/wine-tkg-git/${_ntsync_patch}/wine-tkg-git/wine-tkg-patches/misc/fastsync/ntsync5.patch")
 sha256sums=('8281c5a082cc47ac3c2c91ceaade5f17396553b39adcb32e741253865b658162'
             'c0c846aa4a69032dac2184024efbb3f9a0ab555e11c2d64aa20be4d612ad2ffe')
