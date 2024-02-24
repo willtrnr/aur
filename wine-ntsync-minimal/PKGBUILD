@@ -1,0 +1,137 @@
+# Maintainer: William Turner <willtur dot will at gmail dot com>
+
+pkgname=wine-ntsync-minimal
+pkgver=9.2
+_pkgver="${pkgver/rc/-rc}"
+_ntsync_patch='b1d7ee352c4f4e1dcbc1cbf738975e51b87d6113'
+pkgrel=1
+pkgdesc='A compatibility layer for running Windows programs (minimal Wow64 with NTSync)'
+arch=('x86_64')
+url='https://www.winehq.org'
+license=('LGPL-2.1-or-later')
+depends=('freetype2'      'lib32-freetype2'
+         'gcc-libs'       'lib32-gcc-libs'
+         'libunwind'      'lib32-libunwind'
+         'libxi'          'lib32-libxi'
+         'libxkbcommon'   'lib32-libxkbcommon'
+         'libxrandr'      'lib32-libxrandr'
+         'wayland'        'lib32-wayland')
+makedepends=('autoconf'
+             'bison'
+             'flex'
+             'gnutls'              'lib32-gnutls'
+             'libxcomposite'       'lib32-libxcomposite'
+             'libxxf86vm'          'lib32-libxxf86vm'
+             'mesa'                'lib32-mesa'
+             'mesa-libgl'          'lib32-mesa-libgl'
+             'mingw-w64-gcc'
+             'ntsync-header'
+             'perl'
+             'samba'
+             'sdl2'                'lib32-sdl2'
+             'vulkan-headers'
+             'vulkan-icd-loader'   'lib32-vulkan-icd-loader')
+optdepends=('gnutls'          'lib32-gnutls'
+            'libxcomposite'   'lib32-libxcomposite'
+            'samba'
+            'sdl2'            'lib32-sdl2'
+            'wine-gecko'
+            'wine-mono')
+provides=("wine=${pkgver}")
+conflicts=('wine')
+options=(staticlibs !lto)
+source=("https://dl.winehq.org/wine/source/${pkgver::1}.x/wine-${_pkgver}.tar.xz"
+        "https://raw.githubusercontent.com/Frogging-Family/wine-tkg-git/${_ntsync_patch}/wine-tkg-git/wine-tkg-patches/misc/fastsync/ntsync5.patch")
+sha256sums=('8281c5a082cc47ac3c2c91ceaade5f17396553b39adcb32e741253865b658162'
+            'c0c846aa4a69032dac2184024efbb3f9a0ab555e11c2d64aa20be4d612ad2ffe')
+
+makedepends=("${makedepends[@]}" "${depends[@]}")
+
+prepare() {
+  cd "wine-${_pkgver}"
+
+  patch -p1 -i "${srcdir}/ntsync5.patch"
+}
+
+build() {
+  local _common_flags=(
+    --disable-tests \
+    --disable-win16 \
+    --with-wayland
+    --with-x
+    --without-alsa
+    --without-capi
+    --without-coreaudio
+    --without-cups
+    --without-dbus
+    --without-fontconfig
+    --without-gettext
+    --without-gphoto
+    --without-gstreamer
+    --without-inotify
+    --without-opencl
+    --without-oss
+    --without-pcap
+    --without-pcsclite
+    --without-pulse
+    --without-sane
+    --without-udev
+    --without-usb
+    --without-v4l2
+    --without-xinerama
+  )
+
+  # Doesn't compile without remove these flags as of 4.10
+  export CFLAGS="$CFLAGS -ffat-lto-objects"
+
+
+  msg2 'Building Wine64...'
+  mkdir -p "${srcdir}/${pkgname}-${pkgver}-64"
+  cd "${srcdir}/${pkgname}-${pkgver}-64"
+
+  "${srcdir}/wine-${_pkgver}/configure" \
+    --prefix=/usr \
+    --libdir=/usr/lib \
+    --enable-win64 \
+    "${_common_flags[@]}"
+
+  make
+
+
+  msg2 'Building Wine32...'
+  mkdir -p "${srcdir}/${pkgname}-${pkgver}-32"
+  cd "${srcdir}/${pkgname}-${pkgver}-32"
+
+  export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+  "${srcdir}/wine-${_pkgver}/configure" \
+    --prefix=/usr \
+    --libdir=/usr/lib32 \
+    --with-wine64="${srcdir}/${pkgname}-${pkgver}-64" \
+    "${_common_flags[@]}"
+
+  make
+}
+
+package() {
+  msg2 'Packaging Wine32...'
+  cd "${srcdir}/${pkgname}-${pkgver}-32"
+
+  make \
+    prefix="${pkgdir}/usr" \
+    libdir="${pkgdir}/usr/lib32" \
+    dlldir="${pkgdir}/usr/lib32/wine" \
+    install
+
+  msg2 'Packaging Wine64...'
+  cd "${srcdir}/${pkgname}-${pkgver}-64"
+
+  make \
+    prefix="${pkgdir}/usr" \
+    libdir="${pkgdir}/usr/lib" \
+    dlldir="${pkgdir}/usr/lib/wine" \
+    install
+
+  i686-w64-mingw32-strip --strip-unneeded "${pkgdir}/usr/lib32/wine/i386-windows/"*.dll
+  x86_64-w64-mingw32-strip --strip-unneeded "${pkgdir}/usr/lib/wine/x86_64-windows/"*.dll
+}
