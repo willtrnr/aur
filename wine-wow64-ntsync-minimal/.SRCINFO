@@ -7,7 +7,6 @@ pkgbase = wine-wow64-ntsync-minimal
 	license = LGPL
 	makedepends = mingw-w64-gcc
 	makedepends = ntsync-header
-	depends = libpcap
 	depends = libunwind
 	depends = libx11
 	depends = libxext

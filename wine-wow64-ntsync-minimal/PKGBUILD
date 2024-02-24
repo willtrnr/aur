@@ -9,8 +9,7 @@ pkgdesc='A compatibility layer for running Windows programs (minimal Wow64 with 
 arch=('x86_64')
 url='https://www.winehq.org'
 license=('LGPL')
-depends=('libpcap'
-         'libunwind'
+depends=('libunwind'
          'libx11'
          'libxext')
 makedepends=('mingw-w64-gcc'
@@ -36,24 +35,42 @@ build() {
     --prefix=/usr \
     --libdir=/usr/lib \
     \
-    --enable-archs=x86_64,i386 \
-    --disable-win16 \
-    --enable-win64 \
     --disable-tests \
+    --disable-win16 \
+    --enable-archs=x86_64,i386 \
+    --enable-win64 \
     \
+    --with-gnutls \
+    --with-opengl \
+    --with-pthread \
+    --with-unwind \
+    --with-x \
+    --with-xcomposite \
+    --with-xinput2 \
+    --with-xrender \
+    --with-xshape \
+    --with-xshm \
     --without-alsa \
+    --without-capi \
     --without-coreaudio \
     --without-cups \
+    --without-dbus \
     --without-fontconfig \
     --without-freetype \
+    --without-gettext \
+    --without-gettextpo \
     --without-gphoto \
+    --without-gssapi \
     --without-gstreamer \
+    --without-inotify \
+    --without-krb5 \
     --without-mingw \
     --without-netapi \
     --without-opencl \
-    --without-opengl \
     --without-osmesa \
     --without-oss \
+    --without-pcap \
+    --without-pcsclite \
     --without-pulse \
     --without-sane \
     --without-sdl \
@@ -62,15 +79,11 @@ build() {
     --without-v4l2 \
     --without-vulkan \
     --without-wayland \
-    --without-xcomposite \
     --without-xcursor \
     --without-xfixes \
     --without-xinerama \
     --without-xinput \
-    --without-xinput2 \
     --without-xrandr \
-    --without-xrender \
-    --without-xshape \
     --without-xxf86vm
 
   make
