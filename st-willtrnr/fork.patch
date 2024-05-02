@@ -1,0 +1,13 @@
+diff --color -Naur a/x.c b/x.c
+--- a/x.c	2024-04-05 06:19:18.000000000 -0400
++++ b/x.c	2024-05-01 21:15:41.031209956 -0400
+@@ -2091,6 +2091,9 @@
+ 	if (!opt_title)
+ 		opt_title = (opt_line || !opt_cmd) ? "st" : opt_cmd[0];
+ 
++	if (fork() != 0)
++		return 0;
++
+ 	setlocale(LC_CTYPE, "");
+ 	XSetLocaleModifiers("");
+ 	cols = MAX(cols, 1);
