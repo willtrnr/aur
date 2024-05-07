@@ -1,54 +1,59 @@
 # Maintainer: William Turner <willtur.will@gmail.com>
-# Contributor: Arnab Bose <hirak99+arch@gmail.com>
 
 pkgname=yabsnap
-pkgver=2.0.2
-pkgrel=5
-pkgdesc="Btrfs automated snapshot manager."
+pkgver=2.1.4
+pkgrel=1
+pkgdesc='Btrfs automated snapshot manager.'
 arch=('any')
 url='https://github.com/hirak99/yabsnap'
 license=('Apache')
 depends=('bash'
          'btrfs-progs'
-         'coreutils'
-         'python3')
+         'python>=3.12' 'python<3.13')
 makedepends=('rsync')
-source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz"
-        01-fix-install-script.patch
-        02-fix-expired-selection.patch)
-sha256sums=('dbf1f2a9be6174e36e74e5cff96215691ee7212243c57e5b30315d7b66bcc7bd'
-            '65a086eb98349dc924ba6ba07428f300159c1d4857870788966ab24f3ab8618a'
-            '03f0ee97a1b07ed35e90dbb133a4e1d54b19d382ec2f7d1ea3db672f8b74f4a9')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('8752b66ffa511028be028c3804d373ad17bf4eb7db1c101ed5112402cfe4ac90')
 
 prepare() {
   cd "${pkgname}-${pkgver}"
 
-  for f in "${source[@]}"; do
-    if [[ "$f" == *.patch ]]; then
-      patch -p1 -i "${srcdir}/$f"
-    fi
-  done
+  rm -f src/code/.gitignore
 }
 
-check() {
+build() {
   cd "${pkgname}-${pkgver}"
 
-  src/run_tests.sh
+  gzip -fk artifacts/yabsnap.manpage
 }
 
 package() {
   cd "${pkgname}-${pkgver}"
 
-  # Use provided install script
-  scripts/install-to-dest.sh "${pkgdir}"
+  # Install program code
+  install -Dm 0755 src/yabsnap.sh "${pkgdir}/usr/share/${pkgname}/${pkgname}.sh"
+  cp -r src/code "${pkgdir}/usr/share/${pkgname}/code"
+  rm -f "${pkgdir}/usr/share/${pkgname}/code/"*_test.py
 
-  # Track the config path
-  install -d -m0755 "${pkgdir}/etc/yabsnap/configs"
+  # Install path link
+  install -dm 0755 "${pkgdir}/usr/bin"
+  ln -sf "../share/${pkgname}/${pkgname}.sh" "${pkgdir}/usr/bin/${pkgname}"
 
   # Pre-compile all python files
-  python3 -m compileall -f -s "${pkgdir}" -e "${pkgdir}" \
-    "${pkgdir}/usr/share/yabsnap/code"
+  python3 -m compileall -f -s "${pkgdir}" -e "${pkgdir}" "${pkgdir}/usr/share/${pkgname}/code"
 
-  # Remove unnecessary test scripts
-  rm -f "${pkgdir}/usr/share/yabsnap/"*_tests.sh
+  # Add pacman hook
+  install -Dm 0644 artifacts/pacman/01-yabsnap-pacman-pre.hook "${pkgdir}/usr/share/libalpm/hooks/01-${pkgname}-pacman-pre.hook"
+
+  # Add systemd units
+  install -Dm 0644 artifacts/services/yabsnap.service "${pkgdir}/usr/lib/systemd/system/${pkgname}.service"
+  install -Dm 0644 artifacts/services/yabsnap.timer "${pkgdir}/usr/lib/systemd/system/${pkgname}.timer"
+
+  # Install man page
+  install -Dm 0644 artifacts/yabsnap.manpage.gz "${pkgdir}/usr/share/man/man1/${pkgname}.1.gz"
+
+  # Add package license for compliance
+  install -Dm 0644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+  # Track the config path
+  install -dm 0755 "${pkgdir}/etc/yabsnap/configs"
 }

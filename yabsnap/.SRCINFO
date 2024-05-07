@@ -1,20 +1,16 @@
 pkgbase = yabsnap
 	pkgdesc = Btrfs automated snapshot manager.
-	pkgver = 2.0.2
-	pkgrel = 5
+	pkgver = 2.1.4
+	pkgrel = 1
 	url = https://github.com/hirak99/yabsnap
 	arch = any
 	license = Apache
 	makedepends = rsync
 	depends = bash
 	depends = btrfs-progs
-	depends = coreutils
-	depends = python3
-	source = yabsnap-2.0.2.tar.gz::https://github.com/hirak99/yabsnap/archive/refs/tags/v2.0.2.tar.gz
-	source = 01-fix-install-script.patch
-	source = 02-fix-expired-selection.patch
-	sha256sums = dbf1f2a9be6174e36e74e5cff96215691ee7212243c57e5b30315d7b66bcc7bd
-	sha256sums = 65a086eb98349dc924ba6ba07428f300159c1d4857870788966ab24f3ab8618a
-	sha256sums = 03f0ee97a1b07ed35e90dbb133a4e1d54b19d382ec2f7d1ea3db672f8b74f4a9
+	depends = python>=3.12
+	depends = python<3.13
+	source = yabsnap-2.1.4.tar.gz::https://github.com/hirak99/yabsnap/archive/refs/tags/v2.1.4.tar.gz
+	sha256sums = 8752b66ffa511028be028c3804d373ad17bf4eb7db1c101ed5112402cfe4ac90
 
 pkgname = yabsnap
