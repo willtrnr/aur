@@ -1,0 +1,14 @@
+diff --color -Naur a/Makefile b/Makefile
+--- a/Makefile	2024-05-17 15:32:52.329494496 -0400
++++ b/Makefile	2024-05-17 15:54:53.559689598 -0400
+@@ -44,10 +44,8 @@
+ 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+ 	sed "s/VERSION/$(VERSION)/g" < st.1 > $(DESTDIR)$(MANPREFIX)/man1/st.1
+ 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/st.1
+-	tic -sx st.info
+ 	mkdir -p $(DESTDIR)$(PREFIX)/share/applications # desktop-entry patch
+ 	test -f ${DESTDIR}${PREFIX}/share/applications/st.desktop || cp -n st.desktop $(DESTDIR)$(PREFIX)/share/applications # desktop-entry patch
+-	@echo Please see the README file regarding the terminfo entry of st.
+ 
+ uninstall:
+ 	rm -f $(DESTDIR)$(PREFIX)/bin/st

@@ -1,0 +1,13 @@
+diff --color -Naur a/x.c b/x.c
+--- a/x.c	2024-05-17 15:32:52.341494514 -0400
++++ b/x.c	2024-05-17 15:52:02.559392599 -0400
+@@ -3897,6 +3897,9 @@
+ 	if (!opt_title)
+ 		opt_title = (opt_line || !opt_cmd) ? "st" : opt_cmd[0];
+ 
++	if (fork() != 0)
++		return 0;
++
+ 	setlocale(LC_CTYPE, "");
+ 	XSetLocaleModifiers("");
+ 	#if XRESOURCES_PATCH && XRESOURCES_RELOAD_PATCH || BACKGROUND_IMAGE_PATCH && BACKGROUND_IMAGE_RELOAD_PATCH

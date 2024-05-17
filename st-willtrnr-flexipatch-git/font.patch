@@ -1,0 +1,12 @@
+diff --color -Naur a/config.def.h b/config.def.h
+--- a/config.def.h	2024-05-17 15:32:52.329494496 -0400
++++ b/config.def.h	2024-05-17 15:56:32.038858783 -0400
+@@ -5,7 +5,7 @@
+  *
+  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
+  */
+-static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
++static char *font = "Monospace:size=10:antialias=true:autohint=true";
+ #if FONT2_PATCH
+ /* Spare fonts */
+ static char *font2[] = {
