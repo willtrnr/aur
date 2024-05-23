@@ -3,7 +3,7 @@
 _pkgname=st
 pkgname="${_pkgname}-willtrnr-flexipatch-git"
 pkgver=0.9.2.aa59574
-pkgrel=1
+pkgrel=2
 pkgdesc="A simple virtual terminal emulator for X."
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
 url='https://st.suckless.org'
@@ -16,6 +16,7 @@ depends=('fontconfig'
          'libxft')
 provides=('st')
 conflicts=('st')
+replaces=('st-willtrnr')
 source=("${_pkgname}::git+https://github.com/bakkeby/st-flexipatch.git"
         terminfo.patch
         fork.patch
