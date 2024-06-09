@@ -2,8 +2,8 @@
 
 _pkgname=st
 pkgname="${_pkgname}-willtrnr-flexipatch-git"
-pkgver=0.9.2.aa59574
-pkgrel=2
+pkgver=0.9.2.8aee314
+pkgrel=1
 pkgdesc="A simple virtual terminal emulator for X."
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
 url='https://st.suckless.org'
@@ -26,7 +26,7 @@ source=("${_pkgname}::git+https://github.com/bakkeby/st-flexipatch.git"
 sha256sums=('SKIP'
             'b081c1f887fef920aa8ee16c838a02f08ad0ca8fb13c68b4bd0cbc58c3af8921'
             '468e55037f10e9327e5a2a22f9fafae3fc2ad9a97354eb5be10710a44f2b1fdc'
-            '92b6bc30cc0c46258f718c4af5981759e883fa1bcd780c4d73e2ebfb55aaf023'
+            'a5a66c3e3c713d4ffc8e97bde434ad39c78cc01b34ec1c00b9e5127583dda5c7'
             '6f9098cce962ea3bd7c481d2d0812877afc5719bd51b1d5e21194d4f4560dcff'
             '80c3956efec6fd2002a9cfb5a4c59877d81a92b2e093d4433836667334e5b22e')
 
