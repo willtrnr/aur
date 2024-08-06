@@ -1,17 +1,17 @@
 # Maintainer: Shalygin Konstantin <k0ste@k0ste.ru>
 # Contributor: Shalygin Konstantin <k0ste@k0ste.ru>
-# Contributor: Evgeny Cherkashin <eugeneai@irnok.net>
 
 pkgname='frr'
 pkgver='10.1'
-pkgrel='2'
-pkgdesc='FRRouting (quagga fork) supports BGP4, OSPFv2, OSPFv3, ISIS, RIP, RIPng, PIM, LDP, BFD, VRRP, NHRP and EIGRP'
+pkgrel='3'
+pkgdesc='FRRouting (quagga fork) supports BGP, OSPF, ISIS, RIP, PIM, LDP, BFD, VRRP, NHRP and EIGRP'
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://frrouting.org"
 license=('GPL2')
 depends=('libcap' 'libnl' 'readline' 'ncurses' 'perl' 'pam' 'json-c' 'net-snmp'
-	 'rtrlib' 'libyang>=2.1.128' 'libunwind' 'c-ares' 'protobuf-c' 'pcre2')
-makedepends=('patch' 'gcc' 'bison' 'perl-xml-libxml' 'python-sphinx')
+	 'rtrlib' 'libyang>=2.1.128' 'libunwind' 'c-ares' 'protobuf-c' 'pcre2'
+	 'lua53')
+makedepends=('gcc' 'bison' 'perl-xml-libxml' 'python-sphinx')
 checkdepends=('python-pytest')
 optdepends=('rsyslog: syslog support')
 conflicts=('quagga' 'babeld' 'quagga_cumulus')
@@ -28,23 +28,31 @@ sha256sums=('3ad454d3fe12d88ad202d0656959b04ad881bcaf685a172c3602a63ecab3b211'
 
 prepare() {
   # Systemd use /run, not the /var/run
-  sed -ri 's|/var/run/'"${pkgname}"'|/run/'"${pkgname}"'|g' "${pkgname}-sysusers.conf"
+  sed -i -e 's|/var/run/'"${pkgname}"'|/run/'"${pkgname}"'|g' "${pkgname}-sysusers.conf"
 
   cd "${pkgname}-${pkgname}-${pkgver}"
   # RPKI hacks from SPEC
-  sed -i -e 's/^\(bgpd_options=\)\(.*\)\(".*\)/\1\2 -M rpki\3/' "tools/etc/${pkgname}/daemons"
+  sed -i -e 's/^\(bgpd_options=\)\(.*\)\(".*\)/\1\2 -M rpki\3/' \
+    "tools/etc/${pkgname}/daemons"
   # Systemd use /run, not the /var/run
-  sed -ri 's|/var/run/'"${pkgname}"'|/run/'"${pkgname}"'|g' "redhat/${pkgname}.logrotate"
+  sed -i -e 's|/var/run/'"${pkgname}"'|/run/'"${pkgname}"'|g' \
+    "redhat/${pkgname}.logrotate"
   # Hardcoded path
-  sed -ri 's|/usr/lib/'"${pkgname}"'|/usr/bin|g' "tools/${pkgname}-reload"
+  sed -i -e 's|/usr/lib/'"${pkgname}"'|/usr/bin|g' "tools/${pkgname}-reload"
+  # Hardcoded path again
+  sed -i -e 's|frr_libstatedir="\\${localstatedir}/lib/frr"|frr_libstatedir="\\${localstatedir}/frr/lib"|g' \
+    "configure.ac"
 
   autoreconf -fvi
-  ./configure \
+  LUA_INCLUDE="-I /usr/include/lua5.3" ./configure \
     --prefix="/usr" \
     --sbindir="/usr/bin" \
     --sysconfdir="/etc" \
     --localstatedir="/run" \
+    --runstatedir="/run" \
+    --with-scriptdir="/etc/${pkgname}/scripts" \
     --with-libpam \
+    --disable-static \
     --enable-snmp="agentx" \
     --enable-multipath=256 \
     --enable-user="${pkgname}" \
@@ -53,6 +61,7 @@ prepare() {
     --enable-configfile-mask="0640" \
     --enable-logfile-mask="0640" \
     --enable-pcre2posix \
+    --enable-scripting \
     --enable-rpki \
     --enable-fpm
 }
@@ -72,7 +81,7 @@ package() {
   make DESTDIR="${pkgdir}" install
   install -Dm0644 "../${pkgname}-tmpfiles.conf" "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
   install -Dm0644 "../${pkgname}-sysusers.conf" "${pkgdir}/usr/lib/sysusers.d/${pkgname}.conf"
-  rm -rf "${pkgdir}/usr/bin/"{ssd,fpm_listener}
+  rm -rf "${pkgdir}/usr/bin/"{${pkgname},ssd,fpm_listener}
 
   pushd "redhat"
   install -Dm0644 "${pkgname}.logrotate" "${pkgdir}/etc/logrotate.d/${pkgname}"
