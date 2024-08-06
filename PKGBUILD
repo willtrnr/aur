@@ -4,7 +4,7 @@
 
 pkgname='frr'
 pkgver='10.1'
-pkgrel='1'
+pkgrel='2'
 pkgdesc='FRRouting (quagga fork) supports BGP4, OSPFv2, OSPFv3, ISIS, RIP, RIPng, PIM, LDP, BFD, VRRP, NHRP and EIGRP'
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://frrouting.org"
@@ -53,7 +53,6 @@ prepare() {
     --enable-configfile-mask="0640" \
     --enable-logfile-mask="0640" \
     --enable-pcre2posix \
-    --enable-shell-access \
     --enable-rpki \
     --enable-fpm
 }
@@ -73,7 +72,7 @@ package() {
   make DESTDIR="${pkgdir}" install
   install -Dm0644 "../${pkgname}-tmpfiles.conf" "${pkgdir}/usr/lib/tmpfiles.d/${pkgname}.conf"
   install -Dm0644 "../${pkgname}-sysusers.conf" "${pkgdir}/usr/lib/sysusers.d/${pkgname}.conf"
-  rm -rf "${pkgdir}/usr/bin/ssd"
+  rm -rf "${pkgdir}/usr/bin/"{ssd,fpm_listener}
 
   pushd "redhat"
   install -Dm0644 "${pkgname}.logrotate" "${pkgdir}/etc/logrotate.d/${pkgname}"
