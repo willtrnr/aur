@@ -3,14 +3,14 @@
 
 pkgname='frr'
 pkgver='10.1'
-pkgrel='4'
+pkgrel='5'
 pkgdesc='FRRouting (quagga fork) supports BGP, OSPF, ISIS, RIP, PIM, LDP, BFD, VRRP, NHRP and EIGRP'
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://frrouting.org"
 license=('GPL2')
 depends=('libcap' 'libnl' 'readline' 'ncurses' 'perl' 'pam' 'json-c' 'net-snmp'
 	 'rtrlib' 'libyang>=2.1.128' 'libunwind' 'c-ares' 'protobuf-c' 'pcre2'
-	 'lua53')
+	 'lua53' 'sqlite')
 makedepends=('gcc' 'bison' 'perl-xml-libxml' 'python-sphinx')
 checkdepends=('python-pytest')
 optdepends=('rsyslog: syslog support')
@@ -62,6 +62,7 @@ prepare() {
     --enable-vty-group="${pkgname}vty" \
     --enable-configfile-mask="0640" \
     --enable-logfile-mask="0640" \
+    --enable-config-rollbacks \
     --enable-pcre2posix \
     --enable-scripting \
     --enable-rpki \
@@ -70,7 +71,7 @@ prepare() {
 
 build() {
   cd "${pkgname}-${pkgname}-${pkgver}"
-  make -j3
+  make
 }
 
 check() {
@@ -91,7 +92,6 @@ package() {
   popd
 
   pushd "tools"
-  sed -ri 's|/usr/lib/frr/|/usr/bin/|g' "${pkgname}.service"
   install -Dm0644 "${pkgname}.service" -t "${pkgdir}/usr/lib/systemd/system"
   popd
 

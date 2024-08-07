@@ -27,6 +27,7 @@ pkgbase = frr
 	depends = protobuf-c
 	depends = pcre2
 	depends = lua53
+	depends = sqlite
 	optdepends = rsyslog: syslog support
 	provides = quagga
 	provides = quagga_cumulus
