@@ -3,7 +3,7 @@
 
 pkgname='frr'
 pkgver='10.1'
-pkgrel='3'
+pkgrel='4'
 pkgdesc='FRRouting (quagga fork) supports BGP, OSPF, ISIS, RIP, PIM, LDP, BFD, VRRP, NHRP and EIGRP'
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://frrouting.org"
@@ -38,8 +38,10 @@ prepare() {
   sed -i -e 's|/var/run/'"${pkgname}"'|/run/'"${pkgname}"'|g' \
     "redhat/${pkgname}.logrotate"
   # Hardcoded path
-  sed -i -e 's|/usr/lib/'"${pkgname}"'|/usr/bin|g' "tools/${pkgname}-reload"
-  # Hardcoded path again
+  sed -i -e 's|/usr/lib/'"${pkgname}"'|/usr/bin|g' \
+    "tools/${pkgname}-reload"
+  sed -i -e 's|/var/run/'"${pkgname}"'|/run/'"${pkgname}"'|g' \
+    "tools/${pkgname}-reload.py"
   sed -i -e 's|frr_libstatedir="\\${localstatedir}/lib/frr"|frr_libstatedir="\\${localstatedir}/frr/lib"|g' \
     "configure.ac"
 
@@ -68,7 +70,7 @@ prepare() {
 
 build() {
   cd "${pkgname}-${pkgname}-${pkgver}"
-  make
+  make -j3
 }
 
 check() {

@@ -1,7 +1,7 @@
 pkgbase = frr
 	pkgdesc = FRRouting (quagga fork) supports BGP, OSPF, ISIS, RIP, PIM, LDP, BFD, VRRP, NHRP and EIGRP
 	pkgver = 10.1
-	pkgrel = 3
+	pkgrel = 4
 	url = https://frrouting.org
 	arch = x86_64
 	arch = aarch64
