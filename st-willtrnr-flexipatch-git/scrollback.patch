@@ -1,6 +1,6 @@
-diff --color -Naur a/config.def.h b/config.def.h
---- a/config.def.h	2024-05-17 15:59:18.549145300 -0400
-+++ b/config.def.h	2024-05-17 16:03:57.118628663 -0400
+diff --color -Naur a/config.h b/config.h
+--- a/config.h	2024-05-17 15:59:18.549145300 -0400
++++ b/config.h	2024-05-17 16:03:57.118628663 -0400
 @@ -359,8 +359,8 @@
  	{ XK_ANY_MOD,           Button2, selpaste,       {.i = 0},      1 },
  	#endif // CLIPBOARD_PATCH

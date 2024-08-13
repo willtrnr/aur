@@ -1,6 +1,6 @@
-diff --color -Naur a/config.def.h b/config.def.h
---- a/config.def.h	2024-05-17 15:32:52.329494496 -0400
-+++ b/config.def.h	2024-05-17 15:46:55.478892273 -0400
+diff --color -Naur a/config.h b/config.h
+--- a/config.h	2024-05-17 15:32:52.329494496 -0400
++++ b/config.h	2024-05-17 15:46:55.478892273 -0400
 @@ -178,32 +178,33 @@
  /* Terminal colors (16 first used in escape sequence) */
  static const char *colorname[] = {

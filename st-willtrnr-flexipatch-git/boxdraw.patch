@@ -1,0 +1,17 @@
+diff --color -Naur a/config.h b/config.h
+--- a/config.h	2024-08-13 16:03:30.662157532 -0400
++++ b/config.h	2024-08-13 16:04:17.936875992 -0400
+@@ -130,11 +130,11 @@
+  *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
+  * 0: disable (render all U25XX glyphs normally from the font).
+  */
+-const int boxdraw = 0;
+-const int boxdraw_bold = 0;
++const int boxdraw = 1;
++const int boxdraw_bold = 1;
+ 
+ /* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
+ const int boxdraw_braille = 0;
+ #endif // BOXDRAW_PATCH
+ 
+ /*
