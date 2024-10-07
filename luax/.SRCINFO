@@ -9,7 +9,11 @@ pkgbase = luax
 	makedepends = lua
 	makedepends = ninja
 	makedepends = pandoc
+	makedepends = zig
+	optdepends = zig: script compilation
 	source = luax::git+https://github.com/CDSoft/luax.git#tag=7.1.9
-	sha256sums = SKIP
+	source = 01-use-system-zig.patch
+	sha256sums = c749326ce5c4b831ffc74530e3ea3f574486f8beb7d8510a02f8d8025609b66e
+	sha256sums = 7b53b97d1e9c63cfa43b1c9141cb9f3fafa1b8fd81e8acb135e910ec4f23d5fa
 
 pkgname = luax

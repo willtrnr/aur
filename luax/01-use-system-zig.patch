@@ -1,0 +1,103 @@
+diff --git a/build.lua b/build.lua
+index 51db0de..4aa76d4 100644
+--- a/build.lua
++++ b/build.lua
+@@ -31,7 +31,6 @@ LUAX.VERSION     = sh "git describe --tags" : trim()
+ LUAX.DATE        = sh "git show -s --format=%cd --date=format:'%Y-%m-%d'" : trim()
+ local YEAR       = LUAX.DATE : split '%-' : head()
+ LUAX.COPYRIGHT   = I{YEAR=YEAR}"LuaX $(VERSION)  Copyright (C) 2021-$(YEAR) $(URL), $(AUTHORS)"
+-LUAX.ZIG_VERSION = "0.13.0"
+ 
+ help.name "LuaX"
+ help.description(I[[
+@@ -221,26 +220,12 @@ end
+ case(compiler) {
+ 
+     zig = function()
+-        var "zig_version" (LUAX.ZIG_VERSION)
+-        local HOME, zig_path = F.unpack(case(sys.os) {
+-            windows = { "LOCALAPPDATA", "zig" / "$zig_version" / "zig" },
+-            [Nil]   = { "HOME", ".local/opt/zig" / "$zig_version" / "zig" },
+-        })
+-        var "zig" { os.getenv(HOME) / zig_path }
+-
+-        build "$zig" {
+-            description = {"GET zig", "$zig_version"},
+-            command = {"tools/install_zig.sh", "$zig_version", "$out"},
+-            pool = "console",
+-        }
+-
+-        compiler_deps = { "$zig" }
+         local function zig_rules(target)
+             local target_opt = zig_target(target)
+ 
+-            var("cc-"..target.name) { "$zig cc", target_opt }
+-            var("ar-"..target.name) { "$zig ar" }
+-            var("ld-"..target.name) { "$zig cc", target_opt }
++            var("cc-"..target.name) { "zig cc", target_opt }
++            var("ar-"..target.name) { "zig ar" }
++            var("ld-"..target.name) { "zig cc", target_opt }
+         end
+         targets:foreach(zig_rules)
+     end,
+diff --git a/libluax/luax_config.lua.in b/libluax/luax_config.lua.in
+index d36b5b8..6042067 100644
+--- a/libluax/luax_config.lua.in
++++ b/libluax/luax_config.lua.in
+@@ -27,5 +27,4 @@ return {
+     date = "@(DATE)",
+     copyright = "@(COPYRIGHT)",
+     authors = "@(AUTHORS)",
+-    zig_version = "@(ZIG_VERSION)",
+ }
+diff --git a/luax/luax_cmd_compile.lua b/luax/luax_cmd_compile.lua
+index 86771e0..8824098 100644
+--- a/luax/luax_cmd_compile.lua
++++ b/luax/luax_cmd_compile.lua
+@@ -186,45 +186,7 @@ local function compile_zig(tmp, current_output, target_definition)
+     log("target", "%s", target_definition.name)
+     log("output", "%s", current_output)
+ 
+-    -- Zig configuration
+-    local zig_version = require "luax_config".zig_version
+-
+-    local home, zig_path = F.unpack(F.case(sys.os) {
+-        windows = { "LOCALAPPDATA", "zig" / zig_version },
+-        [F.Nil] = { "HOME", ".local/opt" / "zig" / zig_version },
+-    })
+-    zig_path = os.getenv(home) / zig_path
+-    local zig = zig_path/"zig"..sys.exe
+-
+-    -- Install Zig (to cross compile and link C sources)
+-    if not zig:is_file() then
+-        log("Zig", "download and install Zig to %s", zig_path)
+-        local archive = "zig-"..sys.os.."-"..sys.arch.."-"..zig_version..(sys.os=="windows" and ".zip" or ".tar.xz")
+-        local url = "https://ziglang.org/download/"..zig_version.."/"..archive
+-        local curl = fs.findpath("curl"..sys.exe)
+-        local wget = fs.findpath("wget"..sys.exe)
+-        local tar  = fs.findpath("tar"..sys.exe)
+-        local xz   = fs.findpath("xz"..sys.exe)
+-        if not curl and not wget then help.err("curl or wget required to download Zig") end
+-        if not tar then help.err("tar required to install Zig") end
+-        if sys.os ~= "windows" then
+-            if not xz then help.err("xz required to install Zig") end
+-        end
+-        assert(sh.run(
+-            curl and { curl, "-fSL", quiet and "-s" or "-#", url, "-o", tmp/archive }
+-            or
+-            wget and { wget, quiet and "-q" or "--progress=bar", url, "-O", tmp/archive }
+-        ))
+-        fs.mkdirs(zig_path)
+-        if sys.os == "windows" then
+-            assert(sh.run(tar, "xf", tmp/archive, "-C", zig_path, "--strip-components", 1))
+-        else
+-            assert(sh.run(tar, "xJf", tmp/archive, "-C", zig_path, "--strip-components", 1))
+-        end
+-        if not zig:is_file() then
+-            help.err("Unable to install Zig to %s", zig_path)
+-        end
+-    end
++    local zig = "zig"..sys.exe
+ 
+     -- Extract precompiled LuaX libraries
+     local assets = require "luax_assets"

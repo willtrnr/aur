@@ -10,18 +10,29 @@ license=('GPL-3.0-only')
 makedepends=('git'
              'lua'
              'ninja'
-             'pandoc')
-source=("$pkgname::git+https://github.com/CDSoft/luax.git#tag=$pkgver")
-sha256sums=('SKIP')
+             'pandoc'
+             'zig')
+optdepends=('zig: script compilation')
+source=("$pkgname::git+https://github.com/CDSoft/luax.git#tag=$pkgver"
+        '01-use-system-zig.patch')
+sha256sums=('c749326ce5c4b831ffc74530e3ea3f574486f8beb7d8510a02f8d8025609b66e'
+            '7b53b97d1e9c63cfa43b1c9141cb9f3fafa1b8fd81e8acb135e910ec4f23d5fa')
 
 prepare() {
 	cd "$pkgname"
 
-  lua tools/luax.lua tools/bang.luax -q -g 'lua tools/luax.lua tools/bang.luax' build.lua -o build.ninja -- fast gcc
+  for f in "${source[@]}"; do
+    if [[ "$f" == *.patch ]]; then
+      printf 'Applying %s' "$f"
+      patch -p1 -i "$srcdir/$f"
+    fi
+  done
 }
 
 build() {
 	cd "$pkgname"
+
+  lua tools/luax.lua tools/bang.luax -g 'lua tools/luax.lua tools/bang.luax' build.lua -o build.ninja -- fast zig
 
   ninja compile
 }
