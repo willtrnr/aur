@@ -6,8 +6,7 @@ pkgrel=1
 pkgdesc='Lua interpreter and REPL based on Lua 5.4, augmented with some useful packages'
 arch=('x86_64')
 url='https://cdelord.fr/luax.html'
-license=('GPL-3.0-or-later')
-depends=()
+license=('GPL-3.0-only')
 makedepends=('git'
              'lua'
              'ninja'
