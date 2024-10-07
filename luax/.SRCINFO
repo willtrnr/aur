@@ -1,0 +1,15 @@
+pkgbase = luax
+	pkgdesc = Lua interpreter and REPL based on Lua 5.4, augmented with some useful packages
+	pkgver = 7.1.9
+	pkgrel = 1
+	url = https://cdelord.fr/luax.html
+	arch = x86_64
+	license = GPL-3.0-or-later
+	makedepends = git
+	makedepends = lua
+	makedepends = ninja
+	makedepends = pandoc
+	source = luax::git+https://github.com/CDSoft/luax.git#tag=7.1.9
+	sha256sums = SKIP
+
+pkgname = luax

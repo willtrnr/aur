@@ -1,0 +1,34 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+pkgname=luax
+pkgver=7.1.9
+pkgrel=1
+pkgdesc='Lua interpreter and REPL based on Lua 5.4, augmented with some useful packages'
+arch=('x86_64')
+url='https://cdelord.fr/luax.html'
+license=('GPL-3.0-or-later')
+depends=()
+makedepends=('git'
+             'lua'
+             'ninja'
+             'pandoc')
+source=("$pkgname::git+https://github.com/CDSoft/luax.git#tag=$pkgver")
+sha256sums=('SKIP')
+
+prepare() {
+	cd "$pkgname"
+
+  lua tools/luax.lua tools/bang.luax -q -g 'lua tools/luax.lua tools/bang.luax' build.lua -o build.ninja -- fast gcc
+}
+
+build() {
+	cd "$pkgname"
+
+  ninja compile
+}
+
+package() {
+	cd "$pkgname"
+
+	PREFIX="$pkgdir/usr" ninja install
+}
