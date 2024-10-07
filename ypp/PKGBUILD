@@ -1,0 +1,26 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+pkgname=ypp
+pkgver=1.1.6
+pkgrel=1
+pkgdesc='Yet another preprocessor.'
+arch=('x86_64')
+url='https://cdelord.fr/ypp.html'
+license=('GPL-3.0-only')
+makedepends=('luax'
+             'ninja'
+             'zig')
+source=("$pkgname::git+https://github.com/CDSoft/ypp.git#tag=$pkgver")
+sha256sums=('439f6b84f93f8350a22c1c77cbe0014c3b001788de0cd11730947afb6487c262')
+
+build() {
+	cd "$pkgname"
+
+  ninja compile
+}
+
+package() {
+	cd "$pkgname"
+
+	PREFIX="$pkgdir/usr/" ninja install
+}

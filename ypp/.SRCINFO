@@ -1,0 +1,14 @@
+pkgbase = ypp
+	pkgdesc = Yet another preprocessor.
+	pkgver = 1.1.6
+	pkgrel = 1
+	url = https://cdelord.fr/ypp.html
+	arch = x86_64
+	license = GPL-3.0-only
+	makedepends = luax
+	makedepends = ninja
+	makedepends = zig
+	source = ypp::git+https://github.com/CDSoft/ypp.git#tag=1.1.6
+	sha256sums = 439f6b84f93f8350a22c1c77cbe0014c3b001788de0cd11730947afb6487c262
+
+pkgname = ypp
