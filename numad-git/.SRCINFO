@@ -1,0 +1,19 @@
+pkgbase = numad-git
+	pkgdesc = A deamon that monitors NUMA topology and usage and distributes loads for good locality
+	pkgver = 0.5.20150602.r23.3399d89
+	pkgrel = 1
+	url = https://pagure.io/numad
+	arch = x86_64
+	license = LGPL-2.1-only
+	makedepends = git
+	provides = numad
+	conflicts = numad
+	backup = etc/numad.conf
+	source = numad::git+https://pagure.io/numad.git
+	source = https://pagure.io/numad/pull-request/3.patch
+	source = use-conf-in-systemd.patch
+	sha256sums = SKIP
+	sha256sums = 1dd67ab74cf21dec311806fb1c00fc304ff43642b6db1e1406e7d806f8f6dfbf
+	sha256sums = bff5719d55e6f5338988c2ce1973c4f2c33f1f0ee3b1adca8a089e694891e138
+
+pkgname = numad-git

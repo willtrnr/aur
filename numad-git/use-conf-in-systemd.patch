@@ -1,0 +1,14 @@
+diff --git a/numad.service b/numad.service
+index 2e7ffcc..5b40997 100644
+--- a/numad.service
++++ b/numad.service
+@@ -4,7 +4,8 @@ Documentation=man:numad
+ 
+ [Service]
+ Type=forking
+-ExecStart=/usr/bin/numad -i 15
++EnvironmentFile=/etc/numad.conf
++ExecStart=/usr/bin/numad -i $INTERVAL
+ 
+ [Install]
+ WantedBy=multi-user.target

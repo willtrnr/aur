@@ -1,0 +1,55 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+_pkgname=numad
+pkgname="${_pkgname}-git"
+pkgver=0.5.20150602.r23.3399d89
+pkgrel=1
+pkgdesc='A deamon that monitors NUMA topology and usage and distributes loads for good locality'
+arch=('x86_64')
+url='https://pagure.io/numad'
+license=('LGPL-2.1-only')
+makedepends=('git')
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+backup=('etc/numad.conf')
+source=("${_pkgname}::git+https://pagure.io/numad.git"
+        'https://pagure.io/numad/pull-request/3.patch'
+        'use-conf-in-systemd.patch')
+sha256sums=('SKIP'
+            '1dd67ab74cf21dec311806fb1c00fc304ff43642b6db1e1406e7d806f8f6dfbf'
+            'bff5719d55e6f5338988c2ce1973c4f2c33f1f0ee3b1adca8a089e694891e138')
+
+# Please refer to the 'USING VCS SOURCES' section of the PKGBUILD man page for
+# a description of each element in the source array.
+
+pkgver() {
+	cd "${_pkgname}"
+
+  printf '0.5.%s.r%s.%s' \
+    "$(sed -n 's/^#define VERSION_STRING "\([0-9]*\)"/\1/p' numad.c)" \
+    "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+prepare() {
+  cd "${_pkgname}"
+
+  patch -p1 -i "${srcdir}/3.patch"
+  patch -p1 -i "${srcdir}/use-conf-in-systemd.patch"
+}
+
+build() {
+	cd "${_pkgname}"
+
+	make CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" THREAD_SUPPORT=yes
+}
+
+package() {
+	cd "${_pkgname}"
+
+  install -Dm 0755 numad "${pkgdir}/usr/bin/numad"
+
+  install -Dm 0644 numad.conf "${pkgdir}/etc/numad.conf"
+  install -Dm 0644 numad.service "${pkgdir}/usr/lib/systemd/system/numad.service"
+
+  install -Dm 0644 numad.8 "${pkgdir}/usr/share/man/man8/numad.8"
+}
