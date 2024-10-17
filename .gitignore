@@ -1,5 +1,11 @@
+*.AppImage
+*.deb
+*.jar
+*.log
 *.part
-*.pkg.tar.*
+*.rpm
+*.tar.*
+*.zip
 pkg/
 repository/
 src/
