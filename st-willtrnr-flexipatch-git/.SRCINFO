@@ -1,6 +1,6 @@
 pkgbase = st-willtrnr-flexipatch-git
-	pkgdesc = A simple virtual terminal emulator for X.
-	pkgver = 0.9.2.r304.c4c5113
+	pkgdesc = A simple virtual terminal emulator for X. (willtrnr flexipatch)
+	pkgver = 0.9.2.r305.4dec55e
 	pkgrel = 1
 	url = https://st.suckless.org
 	arch = i686
