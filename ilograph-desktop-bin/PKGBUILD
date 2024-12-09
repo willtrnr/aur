@@ -1,0 +1,37 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+_pkgname=ilograph-desktop
+pkgname="${_pkgname}-bin"
+pkgver=1.8.7
+pkgrel=1
+pkgdesc='Create interactive system architecture diagrams to document, share, and explain your systems with incredible clarity and detail.'
+arch=('x86_64')
+url='https://www.ilograph.com/'
+license=('proprietary')
+depends=('alsa-lib'
+         'dbus'
+         'gtk2'
+         'gtk3'
+         'libcups'
+         'nss')
+optdepends=()
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+options=()
+source=("https://www.ilograph.com/desktop/release/Ilograph+Desktop-${pkgver}.AppImage")
+sha256sums=('794a627a5e7ae4e88cc551e66d600b404d1c6e14cc1f3f24fed4a5b8d55c589f')
+
+build() {
+  chmod +x "${srcdir}/Ilograph+Desktop-${pkgver}.AppImage"
+  "${srcdir}/Ilograph+Desktop-${pkgver}.AppImage" --appimage-extract
+}
+
+package() {
+  install -d -m0755 "${pkgdir}/opt"
+
+  cp -a "${srcdir}/squashfs-root" "${pkgdir}/opt/${_pkgname}"
+  chmod -R +rX,go-w "${pkgdir}/opt/${_pkgname}"
+
+  install -d -m0755 "${pkgdir}/usr/bin"
+  ln -sf "../../opt/${_pkgname}/ilograph" "${pkgdir}/usr/bin/${_pkgname}"
+}
