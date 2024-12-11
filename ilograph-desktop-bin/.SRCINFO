@@ -1,7 +1,7 @@
 pkgbase = ilograph-desktop-bin
 	pkgdesc = Create interactive system architecture diagrams to document, share, and explain your systems with incredible clarity and detail.
 	pkgver = 1.8.7
-	pkgrel = 1
+	pkgrel = 2
 	url = https://www.ilograph.com/
 	arch = x86_64
 	license = proprietary
