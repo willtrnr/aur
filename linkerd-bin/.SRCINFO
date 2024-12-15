@@ -1,0 +1,19 @@
+pkgbase = linkerd2-cli-edge-bin
+	pkgdesc = Ultralight, security-first service mesh for Kubernetes (CLI)
+	pkgver = 24.11.8
+	pkgrel = 1
+	url = https://linkerd.io/
+	arch = x86_64
+	arch = armv7h
+	arch = aarch64
+	license = Apache-2.0
+	provides = linkerd2-cli
+	conflicts = linkerd2-cli
+	source_x86_64 = https://github.com/linkerd/linkerd2/releases/download/edge-24.11.8/linkerd2-cli-edge-24.11.8-linux-amd64
+	sha256sums_x86_64 = bfc84694b4ef3f6224bec1a36074eb912a4abc5a382cf27d375a7b4ee11f4dff
+	source_armv7h = https://github.com/linkerd/linkerd2/releases/download/edge-24.11.8/linkerd2-cli-edge-24.11.8-linux-arm
+	sha256sums_armv7h = 08bcc6e23bc191f24ebdb8481fa6794b20c324989d73b3537c7384a9914a8508
+	source_aarch64 = https://github.com/linkerd/linkerd2/releases/download/edge-24.11.8/linkerd2-cli-edge-24.11.8-linux-arm64
+	sha256sums_aarch64 = ca07a2b0b5266df6e5f7aca22ef1340c5fc7386859b336593c185505c5cfbb3b
+
+pkgname = linkerd2-cli-edge-bin

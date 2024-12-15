@@ -1,0 +1,23 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+_pkgname=linkerd2-cli
+pkgname="${_pkgname}-edge-bin"
+pkgver=24.11.8
+pkgrel=1
+pkgdesc='Ultralight, security-first service mesh for Kubernetes (CLI)'
+arch=('x86_64' 'armv7h' 'aarch64')
+url='https://linkerd.io/'
+license=('Apache-2.0')
+depends=()
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+source_x86_64=("https://github.com/linkerd/linkerd2/releases/download/edge-${pkgver}/${_pkgname}-edge-${pkgver}-linux-amd64")
+source_armv7h=("https://github.com/linkerd/linkerd2/releases/download/edge-${pkgver}/${_pkgname}-edge-${pkgver}-linux-arm")
+source_aarch64=("https://github.com/linkerd/linkerd2/releases/download/edge-${pkgver}/${_pkgname}-edge-${pkgver}-linux-arm64")
+sha256sums_x86_64=('bfc84694b4ef3f6224bec1a36074eb912a4abc5a382cf27d375a7b4ee11f4dff')
+sha256sums_armv7h=('08bcc6e23bc191f24ebdb8481fa6794b20c324989d73b3537c7384a9914a8508')
+sha256sums_aarch64=('ca07a2b0b5266df6e5f7aca22ef1340c5fc7386859b336593c185505c5cfbb3b')
+
+package() {
+  install -D -m0755 "${_pkgname}-edge-${pkgver}-linux-"* "${pkgdir}/usr/bin/linkerd"
+}
