@@ -1,0 +1,28 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+_pkgname=ttf-berkeley-mono
+pkgname="${_pkgname}-slash-lig"
+pkgver=2.0.0
+pkgrel=1
+pkgdesc='A monospace font for professionals. (slashed 0 with ligatures)'
+arch=('any')
+url='https://usgraphics.com/products/berkeley-mono'
+license=('custom')
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+_package=2412274379MM5M84
+_ticket=4ZRWWJWP
+source=("${_package}.zip")
+sha256sums=('1c4a92d75d9b139feacf4e8896dbe88aba1b6c1381c5a9e50541a681a7eddaac')
+
+package() {
+  cd "${_package}"
+
+  install -d -m0755 "${pkgdir}/usr/share/fonts/TTF"
+  install -m0644 "TX-02-${_ticket}/TX-02-Regular.ttf" "${pkgdir}/usr/share/fonts/TTF/BerkeleyMono-Regular.ttf"
+  install -m0644 "TX-02-${_ticket}/TX-02-Bold.ttf" "${pkgdir}/usr/share/fonts/TTF/BerkeleyMono-Bold.ttf"
+  install -m0644 "TX-02-${_ticket}/TX-02-Oblique.ttf" "${pkgdir}/usr/share/fonts/TTF/BerkeleyMono-Italic.ttf"
+  install -m0644 "TX-02-${_ticket}/TX-02-Bold-Oblique.ttf" "${pkgdir}/usr/share/fonts/TTF/BerkeleyMono-BoldItalic.ttf"
+
+  install -D -m0644 README.txt "${pkgdir}/usr/share/licenses/${pkgname}/README.txt"
+}
