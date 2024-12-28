@@ -1,7 +1,9 @@
 # Maintainer: William Turner <willtur.will@gmail.com>
 
-_pkgname=ttf-berkeley-mono
-pkgname="${_pkgname}-slash-lig"
+_pkgbase=ttf-berkeley-mono
+_pkgvariant=-slash-lig
+_pkgname="${_pkgbase}"
+pkgname="${_pkgname}${_pkgvariant}"
 pkgver=2.0.0
 pkgrel=1
 pkgdesc='A monospace font for professionals. (slashed 0 with ligatures)'
