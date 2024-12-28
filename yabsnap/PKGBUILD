@@ -2,14 +2,14 @@
 
 pkgname=yabsnap
 pkgver=2.1.4
-pkgrel=1
+pkgrel=2
 pkgdesc='Btrfs automated snapshot manager.'
 arch=('any')
 url='https://github.com/hirak99/yabsnap'
-license=('Apache')
+license=('Apache-2.0')
 depends=('bash'
          'btrfs-progs'
-         'python>=3.12' 'python<3.13')
+         'python>=3.13' 'python<3.14')
 makedepends=('rsync')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('8752b66ffa511028be028c3804d373ad17bf4eb7db1c101ed5112402cfe4ac90')
