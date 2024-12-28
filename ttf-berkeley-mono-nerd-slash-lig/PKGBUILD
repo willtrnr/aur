@@ -1,0 +1,41 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+_pkgbase=ttf-berkeley-mono
+_pkgvariant=-slash-lig
+_pkgname="${_pkgbase}-nerd"
+pkgname="${_pkgname}${_pkgvariant}"
+pkgver=2.0.0
+pkgrel=1
+pkgdesc='A monospace font for professionals. (nerd patched) (slashed 0 with ligatures)'
+arch=('any')
+url='https://usgraphics.com/products/berkeley-mono'
+license=('custom')
+makedepends=('fontforge'
+             "${_pkgbase}${_pkgvariant}")
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+_nerdver=3.3.0
+source=("https://github.com/ryanoasis/nerd-fonts/releases/download/v${_nerdver}/FontPatcher.zip"
+        "32-${_pkgname}.conf"
+        "42-${_pkgname}.conf"
+        "62-${_pkgname}.conf")
+sha256sums=('ce4284e7d1a8816d29bb3a358e33a44e55804792e7925ed0022ba1b3ab1a9d34'
+            '41dc862043c728d0cb7e62ca77e42098d89bb9b0c040839161ab6dc988ef1ea2'
+            '2bcf76bc879eede708e8bd7cf8a8f516937a3c803d037efc71bdbe66a8eba48b'
+            'e28c39c2587a767a90c7fee890ba76cd027290aa5b8678e1428721602f4ce829')
+
+build() {
+  for v in Regular Bold Oblique Bold-Oblique; do
+    ./font-patcher --outputdir build --careful --mono --has-no-italic --no-progressbars \
+      "/usr/share/fonts/TTF/TX-02-$v.ttf"
+  done
+}
+
+package() {
+  install -D -m0644 "build/"*.ttf -t "${pkgdir}/usr/share/fonts/TTF/"
+  install -D -m0644 "/usr/share/licenses/${_pkgbase}${_pkgvariant}/README.txt" -t "${pkgdir}/usr/share/licenses/${pkgname}/"
+
+  install -D -m0644 ./*.conf -t "${pkgdir}/usr/share/fontconfig/conf.avail/"
+  install -d -m0755 "${pkgdir}/usr/share/fontconfig/conf.default/"
+  ln -srt "${pkgdir}/usr/share/fontconfig/conf.default/" "${pkgdir}/usr/share/fontconfig/conf.avail/"*.conf
+}
