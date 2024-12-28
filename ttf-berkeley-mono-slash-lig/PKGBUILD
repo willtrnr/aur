@@ -15,9 +15,9 @@ conflicts=("${_pkgname}")
 _package=2412274379MM5M84
 _ticket=4ZRWWJWP
 source=("${_package}.zip"
-        "34-${_pkgname}.conf"
-        "44-${_pkgname}.conf"
-        "64-${_pkgname}.conf")
+        "32-${_pkgname}.conf"
+        "42-${_pkgname}.conf"
+        "62-${_pkgname}.conf")
 sha256sums=('1c4a92d75d9b139feacf4e8896dbe88aba1b6c1381c5a9e50541a681a7eddaac'
             '00546c55b18be6da335c63415a3c0f23f0c8780d29972d48f52ee8b921767b4b'
             'aa91fcc1a30aad67ac017105f936ef0e3069249f8740775fed81673a706ebdb9'
