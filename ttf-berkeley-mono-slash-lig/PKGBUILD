@@ -23,8 +23,13 @@ sha256sums=('1c4a92d75d9b139feacf4e8896dbe88aba1b6c1381c5a9e50541a681a7eddaac'
             'aa91fcc1a30aad67ac017105f936ef0e3069249f8740775fed81673a706ebdb9'
             '1c3d8b0fdda39a1a6eb24a508a7822bd12b27dae2ca3e912d8606d54f7167ba5')
 
+_styles=(Regular Bold Oblique Bold-Oblique)
+
 package() {
-  install -D -m0644 "${_package}/TX-02-${_ticket}/"*.ttf -t "${pkgdir}/usr/share/fonts/TTF/"
+  for s in "${_styles[@]}"; do
+    install -D -m0644 "${_package}/TX-02-${_ticket}/TX-02-${s}.ttf" "${pkgdir}/usr/share/fonts/TTF/TX-02-${s//-/}.ttf"
+  done
+
   install -D -m0644 "${_package}/README.txt" -t "${pkgdir}/usr/share/licenses/${pkgname}/"
 
   install -D -m0644 ./*.conf -t "${pkgdir}/usr/share/fontconfig/conf.avail/"
