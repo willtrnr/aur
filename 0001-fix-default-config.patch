@@ -1,0 +1,57 @@
+diff --color -Naur a/redsocks2.service b/redsocks2.service
+--- a/redsocks2.service	2025-01-06 18:46:45.763562296 -0500
++++ b/redsocks2.service	2025-01-06 18:51:22.059526259 -0500
+@@ -1,16 +1,15 @@
+ [Unit]
+ Description=Transparent redirector of any TCP connection to proxy using your firewall
++After=network.target
+ 
+ [Service]
+ Type=forking
+ PIDFile=/run/redsocks2/redsocks2.pid
+-EnvironmentFile=/etc/conf.d/redsocks2
+-User=redsocks
++EnvironmentFile=-/etc/conf.d/redsocks2
+ ExecStartPre=/usr/bin/redsocks2 -t -c $REDSOCKS_CONF
+-ExecStart=/usr/bin/redsocks2 -c $REDSOCKS_CONF \
+-  -p /run/redsocks2/redsocks2.pid
+-ExecStopPost=/bin/rm /run/redsocks2/redsocks2.pid
+-Restart=on-abort
++ExecStart=/usr/bin/redsocks2 -c $REDSOCKS_CONF -p /run/redsocks2/redsocks2.pid
++ExecStopPost=-/usr/bin/rm /run/redsocks2/redsocks2.pid
++User=redsocks
+ 
+ [Install]
+ WantedBy=multi-user.target
+diff --color -Naur a/redsocks.conf.example b/redsocks.conf.example
+--- a/redsocks.conf.example	2025-01-06 18:47:26.064006852 -0500
++++ b/redsocks.conf.example	2025-01-06 18:47:40.209161751 -0500
+@@ -15,7 +15,7 @@
+ 	// log = "syslog:local7";
+ 
+ 	// detach from console
+-	daemon = off;
++	daemon = on;
+ 
+ 	/* Change uid, gid and root directory, these options require root
+ 	 * privilegies on startup.
+@@ -25,8 +25,8 @@
+ 	 * `nobody`, so change it according to your system if you want redsocks
+ 	 * to drop root privileges.
+ 	 */
+-	// user = nobody;
+-	// group = nobody;
++	user = redsocks;
++	group = redsocks;
+ 	// chroot = "/var/chroot";
+ 
+ 	/* possible `redirector' values are:
+@@ -49,7 +49,7 @@
+ 	 # support this option.
+ 	 * Default to off.
+ 	 */
+-	reuseport = off;
++	reuseport = on;
+ }
+ 
+ redsocks {
