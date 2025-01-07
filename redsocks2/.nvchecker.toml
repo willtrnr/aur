@@ -1,0 +1,4 @@
+[redsocks2]
+source = "git"
+git = "https://github.com/semigodking/redsocks.git"
+prefix = "release-"
