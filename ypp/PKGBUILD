@@ -14,13 +14,13 @@ source=("$pkgname::git+https://github.com/CDSoft/ypp.git#tag=$pkgver")
 sha256sums=('439f6b84f93f8350a22c1c77cbe0014c3b001788de0cd11730947afb6487c262')
 
 build() {
-	cd "$pkgname"
+  cd "$pkgname"
 
   ninja compile
 }
 
 package() {
-	cd "$pkgname"
+  cd "$pkgname"
 
-	PREFIX="$pkgdir/usr/" ninja install
+  PREFIX="$pkgdir/usr/" ninja install
 }
