@@ -1,0 +1,23 @@
+# Maintainer: Your Name <youremail@domain.com>
+
+_pkgname=dotnet-targeting-pack-windows-host-8.0
+pkgname="${_pkgname}-bin"
+pkgver=8.0.12.sdk112
+pkgrel=1
+pkgdesc='The .NET Core targeting pack (windows bin)'
+arch=('x86_64')
+url='https://dotnet.microsoft.com'
+license=('MIT')
+depends=('dotnet-targeting-pack-8.0')
+makedepends=('unzip')
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+options=('!lto' 'staticlibs')
+source=("${_pkgname}.zip::https://download.visualstudio.microsoft.com/download/pr/d484b7ce-25a7-49a4-8884-20a68bd9ed79/c7a33de199c018f44e710201f2bf055a/dotnet-sdk-8.0.112-win-x64.zip")
+noextract=("${_pkgname}.zip")
+sha512sums=('a2326748b6ecbf906186947b3b88e9bb99918edfad8b9c1c39eae924370872f23b40a3371e01b31f252b5478e2274d89e587c36ad85059c0cdbd9bb48375034e')
+
+package() {
+  install -d -m0755 "${pkgdir}/usr/share/dotnet"
+  unzip -d "${pkgdir}/usr/share/dotnet" ${_pkgname}.zip 'packs/Microsoft.NETCore.App.Host.win-x64/*'
+}

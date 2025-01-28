@@ -1,0 +1,18 @@
+pkgbase = dotnet-targeting-pack-windows-host-8.0-bin
+	pkgdesc = The .NET Core targeting pack (windows bin)
+	pkgver = 8.0.12.sdk112
+	pkgrel = 1
+	url = https://dotnet.microsoft.com
+	arch = x86_64
+	license = MIT
+	makedepends = unzip
+	depends = dotnet-targeting-pack-8.0
+	provides = dotnet-targeting-pack-windows-host-8.0
+	conflicts = dotnet-targeting-pack-windows-host-8.0
+	noextract = dotnet-targeting-pack-windows-host-8.0.zip
+	options = !lto
+	options = staticlibs
+	source = dotnet-targeting-pack-windows-host-8.0.zip::https://download.visualstudio.microsoft.com/download/pr/d484b7ce-25a7-49a4-8884-20a68bd9ed79/c7a33de199c018f44e710201f2bf055a/dotnet-sdk-8.0.112-win-x64.zip
+	sha512sums = a2326748b6ecbf906186947b3b88e9bb99918edfad8b9c1c39eae924370872f23b40a3371e01b31f252b5478e2274d89e587c36ad85059c0cdbd9bb48375034e
+
+pkgname = dotnet-targeting-pack-windows-host-8.0-bin
