@@ -1,12 +1,12 @@
 pkgbase = ttf-berkeley-mono-nerd-slash-lig
 	pkgdesc = A monospace font for professionals. (nerd patched) (slashed 0 with ligatures)
-	pkgver = 2.0.0
+	pkgver = 2.002+1.1.3
 	pkgrel = 1
 	url = https://usgraphics.com/products/berkeley-mono
 	arch = any
 	license = custom
 	makedepends = fontforge
-	makedepends = ttf-berkeley-mono-slash-lig=2.0.0
+	makedepends = ttf-berkeley-mono-slash-lig=2.002+1.1.3
 	provides = ttf-berkeley-mono-nerd
 	conflicts = ttf-berkeley-mono-nerd
 	source = https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/FontPatcher.zip
