@@ -1,0 +1,13 @@
+pkgbase = webman-bin
+	pkgdesc = Add, remove, and manage different versions of web-distributed software binaries.
+	pkgver = 0.12.0
+	pkgrel = 1
+	url = https://github.com/candrewlee14/webman
+	arch = x86_64
+	license = MIT
+	provides = webman
+	conflicts = webman
+	source = https://github.com/candrewlee14/webman/releases/download/v0.12.0/webman_0.12.0_linux_x86_64.tar.gz
+	sha256sums = 885373edce1f619f04cfccc3ba2e4fdd9851838ca036866ed2831672dd9edb40
+
+pkgname = webman-bin
