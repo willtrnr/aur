@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "assigneesFromCodeOwners": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/(^|/)PKGBUILD$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:[#\\s]*datasource=(?<datasource>[\\w._-]+)[#\\s]+depName=(?<depName>\\S+)(?:[#\\s]+versioning=(?<versioning>\\S*))?(?:[#\\s]+registryUrl=(?<registryUrl>\\S*))?\\s+[\\w_]+=['\"]?(?<currentValue>[\\w+._-]+)['\"]?(?:$|\\s)"
+      ],
+      "extractVersionTemplate": "^(?:[a-z]+-)*v?(?<version>[0-9+._-]+)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/(^|/)PKGBUILD$/"
+      ],
+      "matchStrings": [
+        "https://github.com/(?<depName>[^\\s/]+/[^\\s/]+)/raw/refs/tags/(?<currentValue>[\\w+._-]+)/",
+        "https://github.com/(?<depName>[^\\s/]+/[^\\s/]+)/[^\\s?]+\\?ref=(?<currentValue>[\\w+._-]+)",
+        "https://raw.githubusercontent.com/(?<depName>[^\\s/]+/[^\\s/]+)/(?:refs/tags/)?(?<currentValue>[\\w+._-]+)/"
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ]
+}

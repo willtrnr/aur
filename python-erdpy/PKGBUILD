@@ -1,4 +1,5 @@
-# Maintainer: Your Name <youremail@domain.com>
+# Maintainer: William Turner <willtur.will@gmail.com>
+
 _name=elrond-sdk-erdpy
 pkgname=python-erdpy
 pkgver=1.0.21

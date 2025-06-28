@@ -2,6 +2,7 @@
 
 _pkgname=webman
 pkgname="${_pkgname}-bin"
+# renovate: datasource=github-releases depName=candrewlee14/webman
 pkgver=0.12.0
 pkgrel=1
 pkgdesc='Add, remove, and manage different versions of web-distributed software binaries.'

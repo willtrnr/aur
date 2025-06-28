@@ -1,4 +1,5 @@
 # Maintainer: William Turner <willtur.will@gmail.com>
+
 pkgname=vim-wakatime-git
 pkgver=10.0.0.r618.018fa9a
 pkgrel=1

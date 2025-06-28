@@ -1,4 +1,5 @@
-# Maintainer: Your Name <youremail@domain.com>
+# Maintainer: William Turner <willtur.will@gmail.com>
+
 _pkgname='SAP-Dissection-plug-in-for-Wireshark'
 pkgname=wireshark-sap-dissector
 pkgver=0.9.1

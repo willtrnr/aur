@@ -1,4 +1,4 @@
-# Maintainer: Your Name <youremail@domain.com>
+# Maintainer: William Turner <willtur.will@gmail.com>
 
 _pkgname=dotnet-targeting-pack-windows-host-8.0
 pkgname="${_pkgname}-bin"

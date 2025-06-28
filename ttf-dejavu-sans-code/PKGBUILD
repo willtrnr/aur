@@ -1,5 +1,7 @@
 # Maintainer: William Turner <willtur.will@gmail.com>
+
 pkgname=ttf-dejavu-sans-code
+# renovate: datasource=github-releases depName=SSNikolaevich/DejaVuSansCode
 pkgver=1.2.2
 pkgrel=2
 pkgdesc='Monospaced font with programming ligatures based on DejaVu Sans Mono.'

@@ -1,4 +1,5 @@
 # Maintainer: William Turner <willtur.will@gmail.com>
+
 pkgname=azuredatastudio
 pkgver=1.19.0
 pkgrel=2

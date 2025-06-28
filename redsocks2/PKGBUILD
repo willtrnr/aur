@@ -2,6 +2,7 @@
 
 _pkgname=redsocks
 pkgname="${_pkgname}2"
+# renovate: datasource=github-releases depName=semigodking/redsocks
 pkgver=0.71
 pkgrel=1
 pkgdesc='Transparent redirector of any TCP/UDP connection to proxy.'

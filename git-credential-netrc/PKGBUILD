@@ -1,6 +1,7 @@
 # Maintainer: William Turner <willtur.will@gmail.com>
 
 pkgname=git-credential-netrc
+# renovate: datasource=github-tags depName=git/git
 pkgver=2.41.0
 pkgrel=1
 pkgdesc="git-credentials helper for netrc"

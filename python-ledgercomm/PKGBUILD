@@ -2,6 +2,7 @@
 
 pkgname=python-ledgercomm
 _name="${pkgname#python-}"
+# renovate: datasource=pypi depName=ledgercomm
 pkgver=1.2.1
 pkgrel=2
 pkgdesc="Library to communicate with Ledger Nano S/X and Speculos."

@@ -1,4 +1,5 @@
 # Maintainer: William Turner <willtur.will@gmail.com>
+
 pkgname=vim-ensime-git
 pkgver=0.2.r552.caa734e
 pkgrel=1
