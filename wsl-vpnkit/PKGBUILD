@@ -3,7 +3,7 @@
 pkgname=wsl-vpnkit
 # renovate: datasource=github-releases depName=sakai135/wsl-vpnkit
 pkgver=0.4.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Provides network connectivity to WSL 2 when blocked by VPN'
 arch=('x86_64')
 url='https://github.com/sakai135/wsl-vpnkit'
@@ -18,7 +18,7 @@ source=("${pkgname}-${pkgver}.tar.gz::https://github.com/sakai135/wsl-vpnkit/rel
 noextract=("${pkgname}-${pkgver}.tar.gz")
 sha256sums=('509ef76e6fc0d4d945247b08f323de5b34c6c7ce0b57376680eb8ad7e3a74ed5'
             'e17cdceb658ee2bba093e91c292b810ae413581a3be74828514c02fa76bb756a'
-            '2025fc8ae4be0bb57663dfb030cc36fce8394afc9bf3340bec900bc6fa3a860f')
+            'c8f5c5c8fa856bac4e3e37f54e5a553ba3f6624dbb436b53d46e7cb81d545a06')
 
 prepare() {
   mkdir -p "${pkgname}-${pkgver}"

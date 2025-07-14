@@ -2,7 +2,7 @@
 Description=@@PKGNAME@@
 ConditionVirtualization=wsl
 After=network.target
-Required=network.target
+Requires=network.target
 
 [Service]
 Type=simple
