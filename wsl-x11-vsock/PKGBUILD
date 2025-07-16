@@ -1,0 +1,19 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+pkgname=wsl-x11-vsock
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='WSL2 VSOCK X11 Forwarding'
+arch=('any')
+url='https://github.com/willtrnr/aur'
+license=('MIT')
+depends=('socat')
+source=('x11-vsock.service'
+        'x11-vsock.socket')
+sha256sums=('0241fcc388780de7b2771dd0e74c73b806db3a37fd019d35db8ca075b50c96a8'
+            '1c8aa190cf358bd5b82249fc8385385b64090fbbad7ec625ba4be0bae3c99d6c')
+
+package() {
+  install -D -m0644 x11-vsock.service "${pkgdir}/usr/lib/systemd/system/x11-vsock@.service"
+  install -D -m0644 x11-vsock.socket "${pkgdir}/usr/lib/systemd/system/x11-vsock@.socket"
+}
