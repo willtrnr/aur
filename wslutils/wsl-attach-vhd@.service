@@ -1,0 +1,14 @@
+[Unit]
+Description=WSL Attach VHD %I
+ConditionVirtualization=wsl
+DefaultDependencies=no
+WantsMountsFor=/mnt/c
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/wsl-disk -a "%I" --bare --vhd
+ExecStop=/usr/bin/wsl-disk -d "%I"
+
+[Install]
+WantedBy=sysinit.target

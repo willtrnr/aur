@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+if [ -n "$WSL_DISTRO_NAME" ]; then
+  echo "$WSL_DISTRO_NAME"
+else
+  unset WSL_DISTRO_NAME
+  wslpath -a -m / 2>/dev/null | cut -d/ -f4
+fi

@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+
+WSLEXE="${WSLEXE:-/mnt/c/Windows/System32/wsl.exe}"
+
+assert_root() {
+  if ! [ "$(id -u)" = 0 ]; then
+    echo "Error: This script must be run as root." >&2
+    exit 1
+  fi
+}
+
+win_path() {
+  case "$1" in
+    /*) wslpath -a -w "$1";;
+    *) echo "$1";;
+  esac
+}
+
+disk_attach() {
+  assert_root
+  local disk_path="$(win_path "$1")"; shift
+  exec "$WSLEXE" --distribution "$(wsl-distro-name)" --mount "$@" "$disk_path"
+}
+
+disk_detach() {
+  assert_root
+  local disk_path="$(win_path "$1")"; shift
+  exec "$WSLEXE" --distribution "$(wsl-distro-name)" --unmount "$@" "$disk_path"
+}
+
+case "$1" in
+  -a) shift; disk_attach "$@";;
+  -d) shift; disk_detach "$@";;
+  *)
+    printf 'Usage: %s -a/-d <diskpath> [...]\n' "$0"
+    exit 1;;
+esac
