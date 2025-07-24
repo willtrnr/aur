@@ -4,7 +4,7 @@ _pkgname=wsl-vpnkit
 pkgname="${_pkgname}-bin"
 # renovate: datasource=github-releases depName=sakai135/wsl-vpnkit
 pkgver=0.4.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Provides network connectivity to WSL 2 when blocked by VPN'
 arch=('x86_64')
 url='https://github.com/sakai135/wsl-vpnkit'
@@ -17,11 +17,13 @@ provides=("${_pkgname}")
 conflicts=("${_pkgname}")
 source=("${_pkgname}-${pkgver}.tar.gz::https://github.com/sakai135/wsl-vpnkit/releases/download/v${pkgver}/${_pkgname}.tar.gz"
         "https://github.com/sakai135/wsl-vpnkit/raw/refs/tags/v${pkgver}/LICENSE"
-        'wsl-vpnkit.service')
+        wsl-vpnkit.service
+        wsltap.network)
 noextract=("${_pkgname}-${pkgver}.tar.gz")
 sha256sums=('509ef76e6fc0d4d945247b08f323de5b34c6c7ce0b57376680eb8ad7e3a74ed5'
             'e17cdceb658ee2bba093e91c292b810ae413581a3be74828514c02fa76bb756a'
-            'c8f5c5c8fa856bac4e3e37f54e5a553ba3f6624dbb436b53d46e7cb81d545a06')
+            'c8f5c5c8fa856bac4e3e37f54e5a553ba3f6624dbb436b53d46e7cb81d545a06'
+            '61cff6db0fd3c98653687a9be92d5339f7e035ca7523a8c88aa63ae36e2aef96')
 
 prepare() {
   mkdir -p "${_pkgname}-${pkgver}"
@@ -29,15 +31,14 @@ prepare() {
 }
 
 package() {
+  install -d -m0755 "${pkgdir}/usr/lib/systemd/system"
+  sed "s/@@PKGNAME@@/${_pkgname}/g" wsl-vpnkit.service > "${pkgdir}/usr/lib/systemd/system/${_pkgname}.service"
+  install -D -m0644 wsltap.network "${pkgdir}/usr/lib/systemd/network/80-wsltap.network"
+
+  install -D -m0644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
   cd "${_pkgname}-${pkgver}"
-
   install -D -m0755 wsl-vpnkit "${pkgdir}/usr/bin/${_pkgname}"
-
   install -D -m0755 wsl-gvproxy.exe "${pkgdir}/usr/lib/${_pkgname}/wsl-gvproxy.exe"
   install -D -m0755 wsl-vm "${pkgdir}/usr/lib/${_pkgname}/wsl-vm"
-
-  install -d -m0755 "${pkgdir}/usr/lib/systemd/system"
-  sed "s/@@PKGNAME@@/${_pkgname}/g" "${srcdir}/wsl-vpnkit.service" > "${pkgdir}/usr/lib/systemd/system/${_pkgname}.service"
-
-  install -D -m0644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
