@@ -1,17 +1,13 @@
 [Unit]
-Description=@@PKGNAME@@
+Description=wsl-vpnkit
 ConditionVirtualization=wsl
 After=network.target
-Requires=network.target
 
 [Service]
 Type=simple
-ExecStartPre=-/usr/bin/modprobe tap
-ExecStart=/usr/bin/@@PKGNAME@@
-Environment=VMEXEC_PATH=/usr/lib/@@PKGNAME@@/wsl-vm
-Environment=GVPROXY_PATH=/usr/lib/@@PKGNAME@@/wsl-gvproxy.exe
-EnvironmentFile=-/etc/conf.d/@@PKGNAME@@
-KillMode=mixed
+ExecStart=/usr/lib/wsl-vpnkit/wsl-vm -url='stdio:/usr/lib/wsl-vpnkit/wsl-gvproxy.exe?listen-stdio=accept' -iface=wsltap -preexisting=1 -stop-if-exist=''
+ExecStartPost=/usr/lib/wsl-vpnkit/wsl-vpnkit-fw up
+ExecStopPost=/usr/lib/wsl-vpnkit/wsl-vpnkit-fw down
 Restart=on-failure
 
 [Install]
