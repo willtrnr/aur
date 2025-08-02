@@ -5,3 +5,4 @@ Description=WSL VSOCK X11 Forwarding
 ExecStart=/usr/bin/socat - VSOCK-CONNECT:2:6000
 StandardInput=socket
 StandardOutput=socket
+Nice=-2

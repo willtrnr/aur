@@ -2,7 +2,7 @@
 
 pkgname=wslutils
 pkgver=0.1.0
-pkgrel=3
+pkgrel=4
 pkgdesc='Collection of utilities and systemd units for WSL'
 arch=('any')
 url='https://github.com/willtrnr/aur'
@@ -15,7 +15,7 @@ sha256sums=('6539bc1b6fafd77d5f029186da784dd2678c07d0cf55fe44ce3e6ccb1a10ae2b'
             '5ed55314e9dd608c713304e5d61a996611efa05c7d2ee2d2562d0f9edbc5fe69'
             'a16d9116b927fead5cd8d6374be200437cc8724ef784e3844bc027da4d5880fd'
             '9e387a58800315ebf44dffe3f800f0ea61ef372e83996debb2ad3dc33933b126'
-            '10970d24525c8851c39e78db16584a474e7b4fdd79017e35735fc021aa589bd1'
+            'fe02eb9c5c4b8a36b447a4fdac1ac9598c7ba1f093a82362aef44c3cef6286ae'
             'bf4de9dc07e86c91770c401d6334228fc2b2cd6fbea667f37f1b0a6f2a67db57')
 
 package() {
