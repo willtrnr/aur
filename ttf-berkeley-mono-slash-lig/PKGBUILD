@@ -3,10 +3,8 @@
 _pkgbase=ttf-berkeley-mono
 _pkgvariant=-slash-lig
 _pkgname="${_pkgbase}"
-_fontver=2.002
-_defver=1.1.3
 pkgname="${_pkgname}${_pkgvariant}"
-pkgver="${_fontver}+${_defver}"
+pkgver=2.002
 pkgrel=1
 pkgdesc='A monospace font for professionals. (slashed 0 with ligatures)'
 arch=('any')
