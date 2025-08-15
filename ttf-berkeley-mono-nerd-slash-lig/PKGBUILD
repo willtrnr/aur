@@ -4,24 +4,23 @@ _pkgbase=ttf-berkeley-mono
 _pkgvariant=-slash-lig
 _pkgname="${_pkgbase}-nerd"
 _fontver=2.002
-_defver=1.1.3
+_nerdver=3.4.0
 pkgname="${_pkgname}${_pkgvariant}"
-pkgver="${_fontver}+${_defver}"
+pkgver="${_fontver}+${_nerdver}"
 pkgrel=1
 pkgdesc='A monospace font for professionals. (nerd patched) (slashed 0 with ligatures)'
 arch=('any')
 url='https://usgraphics.com/products/berkeley-mono'
 license=('custom')
 makedepends=('fontforge'
-             "${_pkgbase}${_pkgvariant}=${pkgver}")
+             "${_pkgbase}${_pkgvariant}=${_fontver}")
 provides=("${_pkgname}")
 conflicts=("${_pkgname}")
-_nerdver='3.3.0'
 source=("https://github.com/ryanoasis/nerd-fonts/releases/download/v${_nerdver}/FontPatcher.zip"
         "31-${_pkgname}.conf"
         "41-${_pkgname}.conf"
         "61-${_pkgname}.conf")
-sha256sums=('ce4284e7d1a8816d29bb3a358e33a44e55804792e7925ed0022ba1b3ab1a9d34'
+sha256sums=('a8f11e511ed7c69e96680858c06b50a643ea7752e26d5cd13dd5e5cc53ab1760'
             '1b2e94c17cf4d0e8f562502a71c2b96c6fb0cf40a881b22e4cf5c54262d7aa1f'
             '2bcf76bc879eede708e8bd7cf8a8f516937a3c803d037efc71bdbe66a8eba48b'
             'e28c39c2587a767a90c7fee890ba76cd027290aa5b8678e1428721602f4ce829')
