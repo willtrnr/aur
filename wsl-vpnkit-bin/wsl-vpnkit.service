@@ -6,9 +6,11 @@ After=network.target
 [Service]
 Type=simple
 ExecStart=/usr/lib/wsl-vpnkit/wsl-vm -url='stdio:/usr/lib/wsl-vpnkit/wsl-gvproxy.exe?listen-stdio=accept' -iface=wsltap -preexisting=1 -stop-if-exist=''
+ExecStartPost=-/mnt/c/Windows/System32/wbem/WMIC.exe process where 'name="wsl-gvproxy.exe"' CALL setpriority 'above normal'
 ExecStartPost=/usr/lib/wsl-vpnkit/wsl-vpnkit-fw up
 ExecStopPost=/usr/lib/wsl-vpnkit/wsl-vpnkit-fw down
 Restart=on-failure
+Nice=-2
 
 [Install]
 WantedBy=multi-user.target
