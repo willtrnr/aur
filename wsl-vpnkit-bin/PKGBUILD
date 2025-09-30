@@ -2,7 +2,7 @@
 
 _pkgname=wsl-vpnkit
 pkgname="${_pkgname}-bin"
-# renovate: datasource=github-releases depName=sakai135/wsl-vpnkit
+# renovate: datasource=github-releases depName=containers/gvisor-tap-vsock
 pkgver=0.8.7
 pkgrel=1
 pkgdesc='Provides network connectivity to WSL 2 when blocked by VPN'
@@ -23,7 +23,7 @@ sha256sums=('7e3ba80c2cc0e8f397ac40715d4e190c3b6f3ffee6ed61293689e96346d507f1'
             'cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30'
             '2dbcf00888c7606c1fcd26fff84db2df5aca64c77f0c61f743951c3fb59b1027'
             '613ef62cb1e9989ab93af7933719749c5aa3fbaa877efa49b64a9c7d7866c46b'
-            'e0b5fd1c260d66f8b4adc7aa190238174c2b7fbc0cf8cc6f770905d7cb852808')
+            '4c0a89942bb2c13a09cbede93ed66659207c69591e754bff1c9e749e57efa589')
 
 package() {
   install -D -m0755 gvproxy-windows.exe "${pkgdir}/usr/lib/wsl-vpnkit/wsl-gvproxy.exe"
