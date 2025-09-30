@@ -1,0 +1,16 @@
+[Unit]
+Description=WSL Resolvconf %i
+ConditionVirtualization=wsl
+ConditionPathExists=/mnt/wsl/resolv.conf
+WantsMountsFor=/mnt/wsl
+After=systemd-resolved.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/resolvconf -a -x %i
+ExecStop=/usr/bin/resolvconf -d %i
+StandardInput=file:/mnt/wsl/resolv.conf
+
+[Install]
+WantedBy=multi-user.target

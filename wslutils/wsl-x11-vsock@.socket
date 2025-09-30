@@ -1,9 +1,9 @@
 [Unit]
-Description=WSL VSOCK X11 Forwarding
+Description=WSL X11 VSOCK Tunnel :%i
 ConditionVirtualization=wsl
 
 [Socket]
-ListenStream=%T/.X11-unix/X%I
+ListenStream=%T/.X11-unix/X%i
 Accept=yes
 
 [Install]

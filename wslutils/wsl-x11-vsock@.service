@@ -1,5 +1,5 @@
 [Unit]
-Description=WSL VSOCK X11 Forwarding
+Description=WSL VSOCK X11 Forwarding :%i
 
 [Service]
 ExecStart=/usr/bin/socat -b65536 - VSOCK-CONNECT:2:6000
