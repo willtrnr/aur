@@ -2,7 +2,7 @@
 Description=WSL VSOCK X11 Forwarding
 
 [Service]
-ExecStart=/usr/bin/socat - VSOCK-CONNECT:2:6000
+ExecStart=/usr/bin/socat -b65536 - VSOCK-CONNECT:2:6000
 StandardInput=socket
 StandardOutput=socket
 Nice=-2
