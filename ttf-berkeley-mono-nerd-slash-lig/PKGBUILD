@@ -3,7 +3,7 @@
 _pkgbase=ttf-berkeley-mono
 _pkgvariant=-slash-lig
 _pkgname="${_pkgbase}-nerd"
-_fontver=2.002
+_fontver=2.004
 _nerdver=3.4.0
 pkgname="${_pkgname}${_pkgvariant}"
 pkgver="${_fontver}+${_nerdver}"
@@ -26,12 +26,12 @@ sha256sums=('a8f11e511ed7c69e96680858c06b50a643ea7752e26d5cd13dd5e5cc53ab1760'
             'e28c39c2587a767a90c7fee890ba76cd027290aa5b8678e1428721602f4ce829')
 
 _styles=(
-  Bold
-  Bold-Oblique
-  Light
-  Light-Oblique
-  Oblique
-  Regular
+  Thin{,-Oblique}
+  Light{,-Oblique}
+  Regular Oblique
+  Medium{,-Oblique}
+  Bold{,-Oblique}
+  Black{,-Oblique}
 )
 
 build() {
