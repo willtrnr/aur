@@ -4,7 +4,7 @@ _pkgbase=ttf-berkeley-mono
 _pkgvariant=-slash-lig
 _pkgname="${_pkgbase}"
 pkgname="${_pkgname}${_pkgvariant}"
-pkgver=2.002
+pkgver=2.004
 pkgrel=1
 pkgdesc='A monospace font for professionals. (slashed 0 with ligatures)'
 arch=('any')
@@ -12,24 +12,24 @@ url='https://usgraphics.com/products/berkeley-mono'
 license=('custom')
 provides=("${_pkgname}")
 conflicts=("${_pkgname}")
-_package=250304R4VWWN96JR
-_ticket=QYJJN90Q
+_package=251104W3ZYL8629M
+_ticket=68Z3Y7N3
 source=("${_package}.zip"
         "32-${_pkgname}.conf"
         "42-${_pkgname}.conf"
         "62-${_pkgname}.conf")
-sha256sums=('1ee641b02f7fe8f0ccd78343d48d631c95722124d3ac58b6b6c5efe4610cd2a2'
+sha256sums=('12749a0c3bb63bc4918814024a46cc85f71c9c8eaa28dc7d9ddafd5c6265e5d2'
             '00546c55b18be6da335c63415a3c0f23f0c8780d29972d48f52ee8b921767b4b'
             'aa91fcc1a30aad67ac017105f936ef0e3069249f8740775fed81673a706ebdb9'
             '1c3d8b0fdda39a1a6eb24a508a7822bd12b27dae2ca3e912d8606d54f7167ba5')
 
 _styles=(
-  Bold
-  Bold-Oblique
-  Light
-  Light-Oblique
-  Oblique
-  Regular
+  Thin{,-Oblique}
+  Light{,-Oblique}
+  Regular Oblique
+  Medium{,-Oblique}
+  Bold{,-Oblique}
+  Black{,-Oblique}
 )
 
 package() {
