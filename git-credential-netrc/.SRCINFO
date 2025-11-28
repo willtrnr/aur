@@ -1,16 +1,16 @@
 pkgbase = git-credential-netrc
 	pkgdesc = git-credentials helper for netrc
-	pkgver = 2.51.1
+	pkgver = 2.52.0
 	pkgrel = 1
 	url = https://git-scm.com/
 	arch = x86_64
 	license = GPL2
 	makedepends = python
 	depends = perl
-	source = https://www.kernel.org/pub/software/scm/git/git-2.51.1.tar.xz
-	source = https://www.kernel.org/pub/software/scm/git/git-2.51.1.tar.sign
+	source = https://www.kernel.org/pub/software/scm/git/git-2.52.0.tar.xz
+	source = https://www.kernel.org/pub/software/scm/git/git-2.52.0.tar.sign
 	validpgpkeys = 96E07AF25771955980DAD10020D04E5A713660A7
-	sha256sums = a83fd9ffaed7eee679ed92ceb06f75b4615ebf66d3ac4fbdbfbc9567dc533f4a
+	sha256sums = 3cd8fee86f69a949cb610fee8cd9264e6873d07fa58411f6060b3d62729ed7c5
 	sha256sums = SKIP
 
 pkgname = git-credential-netrc
