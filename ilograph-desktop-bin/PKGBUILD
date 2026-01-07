@@ -3,15 +3,14 @@
 _pkgname=ilograph-desktop
 _appimage=Ilograph+Desktop
 pkgname="${_pkgname}-bin"
-pkgver=1.8.7
-pkgrel=2
+pkgver=2.2.2
+pkgrel=1
 pkgdesc='Create interactive system architecture diagrams to document, share, and explain your systems with incredible clarity and detail.'
 arch=('x86_64')
 url='https://www.ilograph.com/'
 license=('proprietary')
 depends=('alsa-lib'
          'dbus'
-         'gtk2'
          'gtk3'
          'libcups'
          'nss')
@@ -20,7 +19,7 @@ provides=("$_pkgname")
 conflicts=("$_pkgname")
 options=()
 source=("https://www.ilograph.com/desktop/release/${_appimage}-${pkgver}.AppImage")
-sha256sums=('794a627a5e7ae4e88cc551e66d600b404d1c6e14cc1f3f24fed4a5b8d55c589f')
+sha256sums=('64e6b8369b32f0ddec1eaa8dbf4971334b31e45a797abfedcd54d94ff1542b1b')
 
 package() {
   chmod +x "${_appimage}-${pkgver}.AppImage"
@@ -30,13 +29,22 @@ package() {
 
   install -d -m0755 "${pkgdir}/opt"
   cp -a squashfs-root "${pkgdir}/opt/${_pkgname}"
+  rm -rf "${pkgdir}/opt/${_pkgname}/usr"
+  find "${pkgdir}/opt/${_pkgname}" \( \
+    -xtype l -o \
+    \( -name '*.so' ! -name 'libffmpeg.so' \) -o \
+    -name '*.so.*' -o \
+    -name 'app-update.y*ml' -o \
+    -name 'AppRun' \
+  \) -delete
 
   install -d -m0755 "${pkgdir}/usr/bin"
   ln -sf "../../opt/${_pkgname}/ilograph" "${pkgdir}/usr/bin/${_pkgname}"
 
   install -d -m0755 "${pkgdir}/usr/share/applications"
-  sed -e "s;^Exec=AppRun ;Exec=/opt/${_pkgname}/ilograph ;" -e "s;^Icon=.*;Icon=${_pkgname};" \
-    squashfs-root/ilograph.desktop > "${pkgdir}/usr/share/applications/${_pkgname}.desktop"
+  sed -e "s;^Exec=AppRun *;Exec=/opt/${_pkgname}/ilograph ;" -e "s;^Icon=.*;Icon=${_pkgname};" squashfs-root/ilograph.desktop \
+    > "${pkgdir}/usr/share/applications/${_pkgname}.desktop"
 
-  install -D -m0644 squashfs-root/usr/share/icons/hicolor/0x0/apps/ilograph.png "${pkgdir}/usr/share/icons/hicolor/512x512/apps/${_pkgname}.png"
+  install -D -m0644 squashfs-root/usr/share/icons/hicolor/512x512/apps/ilograph.png \
+    "${pkgdir}/usr/share/icons/hicolor/512x512/apps/${_pkgname}.png"
 }

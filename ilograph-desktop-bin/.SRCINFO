@@ -1,19 +1,18 @@
 pkgbase = ilograph-desktop-bin
 	pkgdesc = Create interactive system architecture diagrams to document, share, and explain your systems with incredible clarity and detail.
-	pkgver = 1.8.7
-	pkgrel = 2
+	pkgver = 2.2.2
+	pkgrel = 1
 	url = https://www.ilograph.com/
 	arch = x86_64
 	license = proprietary
 	depends = alsa-lib
 	depends = dbus
-	depends = gtk2
 	depends = gtk3
 	depends = libcups
 	depends = nss
 	provides = ilograph-desktop
 	conflicts = ilograph-desktop
-	source = https://www.ilograph.com/desktop/release/Ilograph+Desktop-1.8.7.AppImage
-	sha256sums = 794a627a5e7ae4e88cc551e66d600b404d1c6e14cc1f3f24fed4a5b8d55c589f
+	source = https://www.ilograph.com/desktop/release/Ilograph+Desktop-2.2.2.AppImage
+	sha256sums = 64e6b8369b32f0ddec1eaa8dbf4971334b31e45a797abfedcd54d94ff1542b1b
 
 pkgname = ilograph-desktop-bin
