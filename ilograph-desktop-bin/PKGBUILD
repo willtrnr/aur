@@ -2,10 +2,11 @@
 
 _pkgname=ilograph-desktop
 _appimage=Ilograph+Desktop
+_drawiover=29.3.0
 pkgname="${_pkgname}-bin"
 pkgver=2.2.2
-pkgrel=1
-pkgdesc='Create interactive system architecture diagrams to document, share, and explain your systems with incredible clarity and detail.'
+pkgrel=2
+pkgdesc='Create interactive system architecture diagrams to document, share, and explain your systems with incredible clarity and detail. (With additional Draw.io icons)'
 arch=('x86_64')
 url='https://www.ilograph.com/'
 license=('proprietary')
@@ -14,35 +15,61 @@ depends=('alsa-lib'
          'gtk3'
          'libcups'
          'nss')
-optdepends=()
+makedepends=('asar'
+             'jq'
+             'moreutils')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
-options=()
-source=("https://www.ilograph.com/desktop/release/${_appimage}-${pkgver}.AppImage")
-sha256sums=('64e6b8369b32f0ddec1eaa8dbf4971334b31e45a797abfedcd54d94ff1542b1b')
+source=("https://www.ilograph.com/desktop/release/${_appimage}-${pkgver}.AppImage"
+        "drawio-${_drawiover}.tar.gz::https://github.com/jgraph/drawio/archive/refs/tags/v${_drawiover}.tar.gz")
+sha256sums=('64e6b8369b32f0ddec1eaa8dbf4971334b31e45a797abfedcd54d94ff1542b1b'
+            'bf1b9d1ef65ed343e7de39196daa557343f2f97e46c3f7dd7481344a13b4023c')
 
-package() {
+prepare() {
+  rm -rf squashfs-root
+
   chmod +x "${_appimage}-${pkgver}.AppImage"
-  "./${_appimage}-${pkgver}.AppImage" --appimage-extract
+  "${srcdir}/${_appimage}-${pkgver}.AppImage" --appimage-extract
 
   chmod -R +rX,go-w squashfs-root
 
-  install -d -m0755 "${pkgdir}/opt"
-  cp -a squashfs-root "${pkgdir}/opt/${_pkgname}"
-  rm -rf "${pkgdir}/opt/${_pkgname}/usr"
-  find "${pkgdir}/opt/${_pkgname}" \( \
-    -xtype l -o \
-    \( -name '*.so' ! -name 'libffmpeg.so' \) -o \
-    -name '*.so.*' -o \
-    -name 'app-update.y*ml' -o \
-    -name 'AppRun' \
-  \) -delete
+  find squashfs-root \( -name '.DirIcon' -o -name 'AppRun' -o -name 'app-update.y*ml' \) -delete
+
+  rm -rf "app-${pkgver}"
+  asar extract squashfs-root/resources/app.asar "app-${pkgver}"
+
+  cp -r "drawio-${_drawiover}/src/main/webapp/img/lib/active_directory" "app-${pkgver}/electron/icons/Active Directory"
+  cp -r "drawio-${_drawiover}/src/main/webapp/img/lib/ibm" "app-${pkgver}/electron/icons/IBM"
+  cp -r "drawio-${_drawiover}/src/main/webapp/img/lib/mscae" "app-${pkgver}/electron/icons/CAE"
+  cp -r "drawio-${_drawiover}/src/main/webapp/img/lib/sap" "app-${pkgver}/electron/icons/SAP"
+
+  for f in "app-${pkgver}/electron/dist/"*.js; do
+    sed -i 's|\["AWS/", *"Azure/", *"GCP/", *"Networking/", *"_demo/"\]|["AWS/","Active Directory/","Azure/","CAE/","GCP/","IBM/","Networking/","SAP/","_demo/"]|g' "$f"
+  done
+
+  {
+    printf 'var __BUILTIN_ICONS__=%s;' "$(find "app-${pkgver}/electron/icons" -mindepth 2 -type f -printf '"%P"\n' | sort | jq -sc)"
+    sed  's|\["AWS/[^"].*\]\.sort()|__BUILTIN_ICONS__|g' "app-${pkgver}/electron/dist/entry.js"
+  } | sponge "app-${pkgver}/electron/dist/entry.js"
+
+  asar pack "app-${pkgver}" squashfs-root/resources/app.asar
+}
+
+package() {
+  install -d -m0755 "${pkgdir}/usr/lib"
+  cp -a squashfs-root "${pkgdir}/usr/lib/${_pkgname}"
+  rm -rf "${pkgdir}/usr/lib/${_pkgname}"/{ilograph.{desktop,png},usr}
+  for f in "${pkgdir}/usr/lib/${_pkgname}/"*.so "${pkgdir}/usr/lib/${_pkgname}/"*.so.*; do
+    if [ -e "$f" ] && [ "$(basename "$f")" != libffmpeg.so ]; then
+      ln -sf "../$(basename "$f")" "$f"
+    fi
+  done
 
   install -d -m0755 "${pkgdir}/usr/bin"
-  ln -sf "../../opt/${_pkgname}/ilograph" "${pkgdir}/usr/bin/${_pkgname}"
+  ln -sf "../lib/${_pkgname}/ilograph" "${pkgdir}/usr/bin/${_pkgname}"
 
   install -d -m0755 "${pkgdir}/usr/share/applications"
-  sed -e "s;^Exec=AppRun *;Exec=/opt/${_pkgname}/ilograph ;" -e "s;^Icon=.*;Icon=${_pkgname};" squashfs-root/ilograph.desktop \
+  sed -e "s;^Exec=AppRun *;Exec=/usr/lib/${_pkgname}/ilograph ;" -e "s;^Icon=.*;Icon=${_pkgname};" squashfs-root/ilograph.desktop \
     > "${pkgdir}/usr/share/applications/${_pkgname}.desktop"
 
   install -D -m0644 squashfs-root/usr/share/icons/hicolor/512x512/apps/ilograph.png \
