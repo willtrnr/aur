@@ -2,7 +2,7 @@
 
 pkgname=git-credential-netrc
 # renovate: datasource=github-tags depName=git/git
-pkgver=2.52.0
+pkgver=2.53.0
 pkgrel=1
 pkgdesc="git-credentials helper for netrc"
 arch=('x86_64')
