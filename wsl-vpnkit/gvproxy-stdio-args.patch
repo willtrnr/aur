@@ -1,0 +1,14 @@
+diff --git a/cmd/gvproxy/config.go b/cmd/gvproxy/config.go
+index 7ba8c971..7584d8d4 100644
+--- a/cmd/gvproxy/config.go
++++ b/cmd/gvproxy/config.go
+@@ -237,6 +237,9 @@ func GvproxyConfigure(config *GvproxyConfig, args *GvproxyArgs, version string)
+ 	if args.vpnkitSocket != "" {
+ 		config.Interfaces.VPNKit = args.vpnkitSocket
+ 	}
++	if args.stdioSocket != "" {
++		config.Interfaces.Stdio = args.stdioSocket
++	}
+ 	if args.pidFile != "" {
+ 		config.PIDFile = args.pidFile
+ 	}

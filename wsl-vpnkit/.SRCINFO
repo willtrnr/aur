@@ -1,0 +1,22 @@
+pkgbase = wsl-vpnkit
+	pkgdesc = Provides network connectivity to WSL 2 when blocked by VPN
+	pkgver = 0.8.8
+	pkgrel = 1
+	url = https://github.com/sakai135/wsl-vpnkit
+	arch = x86_64
+	license = Apache-2.0
+	makedepends = go
+	depends = iproute2
+	depends = iptables
+	source = git+https://github.com/containers/gvisor-tap-vsock.git#tag=v0.8.8
+	source = gvproxy-stdio-args.patch
+	source = 80-wsltap.network
+	source = wsl-vpnkit.service
+	source = wsl-vpnkit-fw
+	sha256sums = 1854b2925890748fc4142da9cc77040b502393926af07e289ea81db231675153
+	sha256sums = 9567cb7924024baa575015dd4e4b82db8a66268eff3a827f8bd0d75ad6d0416e
+	sha256sums = 2dbcf00888c7606c1fcd26fff84db2df5aca64c77f0c61f743951c3fb59b1027
+	sha256sums = 613ef62cb1e9989ab93af7933719749c5aa3fbaa877efa49b64a9c7d7866c46b
+	sha256sums = 4c0a89942bb2c13a09cbede93ed66659207c69591e754bff1c9e749e57efa589
+
+pkgname = wsl-vpnkit

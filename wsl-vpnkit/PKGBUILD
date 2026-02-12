@@ -1,0 +1,52 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+pkgname=wsl-vpnkit
+# renovate: datasource=github-releases depName=containers/gvisor-tap-vsock
+pkgver=0.8.8
+pkgrel=1
+pkgdesc='Provides network connectivity to WSL 2 when blocked by VPN'
+arch=('x86_64')
+url='https://github.com/sakai135/wsl-vpnkit'
+license=('Apache-2.0')
+depends=('iproute2'
+         'iptables')
+makedepends=('go')
+source=("git+https://github.com/containers/gvisor-tap-vsock.git#tag=v${pkgver}"
+        gvproxy-stdio-args.patch
+        80-wsltap.network
+        wsl-vpnkit.service
+        wsl-vpnkit-fw)
+sha256sums=('1854b2925890748fc4142da9cc77040b502393926af07e289ea81db231675153'
+            '9567cb7924024baa575015dd4e4b82db8a66268eff3a827f8bd0d75ad6d0416e'
+            '2dbcf00888c7606c1fcd26fff84db2df5aca64c77f0c61f743951c3fb59b1027'
+            '613ef62cb1e9989ab93af7933719749c5aa3fbaa877efa49b64a9c7d7866c46b'
+            '4c0a89942bb2c13a09cbede93ed66659207c69591e754bff1c9e749e57efa589')
+
+prepare() {
+  cd gvisor-tap-vsock
+
+  patch -p1 -i "${srcdir}/gvproxy-stdio-args.patch"
+}
+
+build() {
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export GOFLAGS="-buildmode=pie"
+  export GOPATH="${srcdir}"
+
+  make vm win-gvproxy -C gvisor-tap-vsock
+}
+
+package() {
+  install -D -m0755 gvisor-tap-vsock/bin/gvforwarder "${pkgdir}/usr/lib/wsl-vpnkit/wsl-gvforwarder"
+  install -D -m0755 gvisor-tap-vsock/bin/gvproxy.exe "${pkgdir}/usr/lib/wsl-vpnkit/wsl-gvproxy.exe"
+
+  install -D -m0755 wsl-vpnkit-fw "${pkgdir}/usr/lib/wsl-vpnkit/wsl-vpnkit-fw"
+
+  install -D -m0644 80-wsltap.network "${pkgdir}/usr/lib/systemd/network/80-wsltap.network"
+  install -D -m0644 wsl-vpnkit.service "${pkgdir}/usr/lib/systemd/system/wsl-vpnkit.service"
+
+  install -D -m0644 gvisor-tap-vsock/LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
