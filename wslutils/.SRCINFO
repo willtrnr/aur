@@ -1,6 +1,6 @@
 pkgbase = wslutils
 	pkgdesc = Collection of utilities and services for WSL
-	pkgver = 0.1.1
+	pkgver = 0.1.2
 	pkgrel = 1
 	url = https://github.com/willtrnr/aur
 	arch = any
@@ -19,7 +19,7 @@ pkgbase = wslutils
 	sha256sums = a16d9116b927fead5cd8d6374be200437cc8724ef784e3844bc027da4d5880fd
 	sha256sums = 387983069a7edb86e18bfcc5aaf339c725ab2949d913f9713369c8dfc49c3747
 	sha256sums = 9e387a58800315ebf44dffe3f800f0ea61ef372e83996debb2ad3dc33933b126
-	sha256sums = cc87e2d7b16d30239b1382cea9b69e996ffea678bf8c470d18acb2e10c96a7bb
-	sha256sums = c5d6a7dfed7f6e9fb441ce7370e8bd8d9d701b583029dcc1b3297af87b532e5a
+	sha256sums = 68e735def63ac897bf445d21b7b4416cac2d3b3277737cec778228f35ccd98b6
+	sha256sums = 68429be2fd3badf58542196fa05539ec1b443cb9667632a3cf5cca8f8cc33cb4
 
 pkgname = wslutils

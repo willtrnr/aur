@@ -4,6 +4,7 @@ ConditionVirtualization=wsl
 
 [Socket]
 ListenStream=%T/.X11-unix/X%i
+PassFileDescriptorsToExec=yes
 Accept=yes
 
 [Install]
