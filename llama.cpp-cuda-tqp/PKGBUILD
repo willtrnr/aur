@@ -3,13 +3,13 @@
 # Contributor: txtsd <aur.archlinux@ihavea.quest>
 # Contributor: envolution
 
-pkgname=llama.cpp-cuda-tqp
-_pkgname=${pkgname%%-cuda-tqp}
+_pkgname=llama.cpp
+pkgname="${_pkgname}-cuda-tqp"
 _tagver=b9951-c3e6dbb
 pkgver="${_tagver%%-*}"
 pkgrel=1
 pkgdesc="Port of Facebook's LLaMA model in C/C++ (with NVIDIA CUDA optimizations and TurboQuant+)"
-arch=(x86_64 armv7h aarch64)
+arch=(x86_64 aarch64)
 url='https://github.com/TheTom/llama-cpp-turboquant'
 license=('MIT')
 depends=(
@@ -58,6 +58,7 @@ build() {
   if [[ -z "${NVCC_CCBIN}" ]]; then
     source /etc/profile
   fi
+
   local _cmake_options=(
     -G Ninja
     -B build
@@ -83,11 +84,13 @@ build() {
     -DLLAMA_BUILD_NUMBER="${pkgver#b}"
     -Wno-dev
   )
+
   # Allow user-specified additional flags
   if [[ -n "$LLAMA_BUILD_EXTRA_ARGS" ]]; then
     echo "Applied custom CMake build args: $LLAMA_BUILD_EXTRA_ARGS"
     _cmake_options+=($LLAMA_BUILD_EXTRA_ARGS)
   fi
+
   cmake "${_cmake_options[@]}"
   cmake --build build -- -j $(nproc)
 }

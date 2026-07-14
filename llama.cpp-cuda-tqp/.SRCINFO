@@ -4,7 +4,6 @@ pkgbase = llama.cpp-cuda-tqp
 	pkgrel = 1
 	url = https://github.com/TheTom/llama-cpp-turboquant
 	arch = x86_64
-	arch = armv7h
 	arch = aarch64
 	license = MIT
 	makedepends = cmake
