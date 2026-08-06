@@ -5,8 +5,9 @@
 
 _pkgname=llama.cpp
 pkgname="${_pkgname}-cuda-tqp"
-_tagver=b10286-21eab71
-pkgver="${_tagver%%-*}"
+_build_num=10286
+_build_commit=21eab71
+pkgver="b${_build_num}"
 pkgrel=1
 pkgdesc="Port of Facebook's LLaMA model in C/C++ (with NVIDIA CUDA optimizations and TurboQuant+)"
 arch=(x86_64 aarch64)
@@ -42,7 +43,7 @@ conflicts=(${_pkgname} libggml ggml)
 options=(lto !debug)
 backup=("etc/conf.d/llama.cpp")
 source=(
-  "${pkgname}::git+${url}.git#tag=feature-turboquant-kv-cache-${_tagver}"
+  "${pkgname}::git+${url}.git#tag=feature-turboquant-kv-cache-${pkgver}-${_build_commit}"
   llama.cpp.conf
   llama.cpp.service
 )
@@ -56,8 +57,8 @@ build() {
   fi
 
   local _cmake_options=(
-    -G Ninja
     -B build
+    -G Ninja
     -S "${pkgname}"
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX='/usr'
@@ -76,8 +77,10 @@ build() {
     -DGGML_CUDA_FA_ALL_QUANTS=ON
     -DGGML_CUDNN=ON
     -DGGML_NATIVE=ON
-    -DLLAMA_BUILD_NUMBER="${pkgver#b}"
-    -Wno-dev
+    -DGGML_BUILD_SERVER=ON
+    -DLLAMA_BUILD_NUMBER="${_build_num}"
+    -DLLAMA_BUILD_COMMIT="${_build_commit}"
+    -Wno-author
   )
 
   # Allow user-specified additional flags
@@ -87,14 +90,14 @@ build() {
   fi
 
   cmake "${_cmake_options[@]}"
-  cmake --build build -- -j $(nproc)
+  cmake --build build -- -j$(nproc)
 }
 
 package() {
   DESTDIR="${pkgdir}" cmake --install build
 
   install -Dm644 "${pkgname}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
   install -Dm644 "llama.cpp.conf" "${pkgdir}/etc/conf.d/llama.cpp"
   install -Dm644 "llama.cpp.service" "${pkgdir}/usr/lib/systemd/system/llama.cpp.service"
 }
-# vim:set ts=2 sw=2 et:
