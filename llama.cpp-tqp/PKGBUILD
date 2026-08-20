@@ -5,8 +5,8 @@
 
 _pkgname=llama.cpp
 pkgname="${_pkgname}-tqp"
-_build_num=10286
-_build_commit=21eab71
+_build_num=10530
+_build_ref=bd1bf02
 pkgver="b${_build_num}"
 pkgrel=1
 pkgdesc="Port of Facebook's LLaMA model in C/C++ (with TurboQuant+)"
@@ -39,11 +39,11 @@ conflicts=(${_pkgname} libggml ggml)
 options=(lto !debug)
 backup=("etc/conf.d/llama.cpp")
 source=(
-  "${pkgname}::git+${url}.git#tag=feature-turboquant-kv-cache-${pkgver}-${_build_commit}"
+  "${pkgname}::git+${url}.git#tag=feature-turboquant-kv-cache-${pkgver}-${_build_ref}"
   llama.cpp.conf
   llama.cpp.service
 )
-sha256sums=('f4535afc16531447bb8a1ee8524514a2744ba73e8e65b9f74f17bdfb71a37f83'
+sha256sums=('1d0bbc3273e6499d2c2218c10ba2b21a93ac0840d788662f9032293d0faa6f16'
             '53fa70cfe40cb8a3ca432590e4f76561df0f129a31b121c9b4b34af0da7c4d87'
             '0377d08a07bda056785981d3352ccd2dbc0387c4836f91fb73e6b790d836620d')
 
@@ -70,7 +70,7 @@ build() {
     -DGGML_NATIVE=ON
     -DGGML_BUILD_SERVER=ON
     -DLLAMA_BUILD_NUMBER="${_build_num}"
-    -DLLAMA_BUILD_COMMIT="${_build_commit}"
+    -DLLAMA_BUILD_COMMIT="${_build_ref}"
     -Wno-author
   )
 

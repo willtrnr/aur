@@ -1,6 +1,6 @@
 pkgbase = llama.cpp-tqp
 	pkgdesc = Port of Facebook's LLaMA model in C/C++ (with TurboQuant+)
-	pkgver = b10286
+	pkgver = b10530
 	pkgrel = 1
 	url = https://github.com/TheTom/llama-cpp-turboquant
 	arch = x86_64
@@ -28,10 +28,10 @@ pkgbase = llama.cpp-tqp
 	options = lto
 	options = !debug
 	backup = etc/conf.d/llama.cpp
-	source = llama.cpp-tqp::git+https://github.com/TheTom/llama-cpp-turboquant.git#tag=feature-turboquant-kv-cache-b10286-21eab71
+	source = llama.cpp-tqp::git+https://github.com/TheTom/llama-cpp-turboquant.git#tag=feature-turboquant-kv-cache-b10530-bd1bf02
 	source = llama.cpp.conf
 	source = llama.cpp.service
-	sha256sums = f4535afc16531447bb8a1ee8524514a2744ba73e8e65b9f74f17bdfb71a37f83
+	sha256sums = 1d0bbc3273e6499d2c2218c10ba2b21a93ac0840d788662f9032293d0faa6f16
 	sha256sums = 53fa70cfe40cb8a3ca432590e4f76561df0f129a31b121c9b4b34af0da7c4d87
 	sha256sums = 0377d08a07bda056785981d3352ccd2dbc0387c4836f91fb73e6b790d836620d
 
