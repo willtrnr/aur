@@ -5,8 +5,8 @@
 
 _pkgname=llama.cpp
 pkgname="${_pkgname}-cuda-tqp"
-_build_num=10648
-_build_ref=fb2cc35
+_build_num=10715
+_build_ref=80007e7
 pkgver="b${_build_num}"
 pkgrel=1
 pkgdesc="Port of Facebook's LLaMA model in C/C++ (with NVIDIA CUDA optimizations and TurboQuant+)"
@@ -47,7 +47,7 @@ source=(
   llama.cpp.conf
   llama.cpp.service
 )
-sha256sums=('644b6c6221ed3a888b34b6bd6cf384fd513290cfb8282ea83888c714e2289ec4'
+sha256sums=('5994e991f4d2f3498b99ffe6add11ada4c107e18ddd23bbbc911009b01d34f53'
             '53fa70cfe40cb8a3ca432590e4f76561df0f129a31b121c9b4b34af0da7c4d87'
             '0377d08a07bda056785981d3352ccd2dbc0387c4836f91fb73e6b790d836620d')
 
