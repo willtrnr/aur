@@ -1,0 +1,22 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+_pkgname=gastown
+pkgname="${_pkgname}-bin"
+pkgver=1.2.1
+pkgrel=1
+pkgdesc='Multi-agent workspace manager'
+arch=('x86_64' 'aarch64')
+url='https://github.com/gastownhall/gastown'
+license=('MIT')
+depends=('glibc')
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+source_x86_64=("${url}/releases/download/v${pkgver}/gastown_${pkgver}_linux_amd64.tar.gz")
+source_aarch64=("${url}/releases/download/v${pkgver}/gastown_${pkgver}_linux_arm64.tar.gz")
+sha256sums_x86_64=('cc81f0a55c1f30986759ec8a924e232316c1532900d61af241965ebc0127eb05')
+sha256sums_aarch64=('955066db97c1782935bf6413fd5ad9dc3c699a76a5b38eb34c0f192484a240d4')
+
+package() {
+  install -Dm755 gt "${pkgdir}/usr/bin/gt"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

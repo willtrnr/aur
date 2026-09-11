@@ -1,0 +1,17 @@
+pkgbase = gastown-bin
+	pkgdesc = Multi-agent workspace manager
+	pkgver = 1.2.1
+	pkgrel = 1
+	url = https://github.com/gastownhall/gastown
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	depends = glibc
+	provides = gastown
+	conflicts = gastown
+	source_x86_64 = https://github.com/gastownhall/gastown/releases/download/v1.2.1/gastown_1.2.1_linux_amd64.tar.gz
+	sha256sums_x86_64 = cc81f0a55c1f30986759ec8a924e232316c1532900d61af241965ebc0127eb05
+	source_aarch64 = https://github.com/gastownhall/gastown/releases/download/v1.2.1/gastown_1.2.1_linux_arm64.tar.gz
+	sha256sums_aarch64 = 955066db97c1782935bf6413fd5ad9dc3c699a76a5b38eb34c0f192484a240d4
+
+pkgname = gastown-bin
