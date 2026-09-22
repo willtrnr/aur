@@ -5,8 +5,8 @@
 
 _pkgname=llama.cpp
 pkgname="${_pkgname}-cuda-tqp"
-_build_num=10726
-_build_ref=407f323
+_build_num=10760
+_build_ref=4deec55
 pkgver="b${_build_num}"
 pkgrel=1
 pkgdesc="Port of Facebook's LLaMA model in C/C++ (with NVIDIA CUDA optimizations and TurboQuant+)"
@@ -44,12 +44,19 @@ options=(lto !debug)
 backup=("etc/conf.d/llama.cpp")
 source=(
   "${pkgname}::git+${url}.git#tag=feature-turboquant-kv-cache-${pkgver}-${_build_ref}"
+  "0001-add-d512-fattn.patch::${url}/commit/bef37276ba00a16ffa68d9a9de5f690df3e33458.patch"
   llama.cpp.conf
   llama.cpp.service
 )
-sha256sums=('2ec5344fb892ca7d23e14d649bfd69eb164e1bbcbd46a27df4c4cc7b3b586f89'
+sha256sums=('abfba16f0724d076e66479c3afc7801e894103426a1352230326aaad52b4d84d'
+            'f54467cd55e6dd4c8208509b46d1e9985f0cd7b08b8d8df619ef2c5b13e2a22b'
             '53fa70cfe40cb8a3ca432590e4f76561df0f129a31b121c9b4b34af0da7c4d87'
             '0377d08a07bda056785981d3352ccd2dbc0387c4836f91fb73e6b790d836620d')
+
+prepare() {
+  cd "${srcdir}/${pkgname}"
+  patch -p1 -R -i "${srcdir}/0001-add-d512-fattn.patch"
+}
 
 build() {
   if [[ -z "${NVCC_CCBIN}" ]]; then

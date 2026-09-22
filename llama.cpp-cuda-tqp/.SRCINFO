@@ -1,6 +1,6 @@
 pkgbase = llama.cpp-cuda-tqp
 	pkgdesc = Port of Facebook's LLaMA model in C/C++ (with NVIDIA CUDA optimizations and TurboQuant+)
-	pkgver = b10726
+	pkgver = b10760
 	pkgrel = 1
 	url = https://github.com/TheTom/llama-cpp-turboquant
 	arch = x86_64
@@ -31,10 +31,12 @@ pkgbase = llama.cpp-cuda-tqp
 	options = lto
 	options = !debug
 	backup = etc/conf.d/llama.cpp
-	source = llama.cpp-cuda-tqp::git+https://github.com/TheTom/llama-cpp-turboquant.git#tag=feature-turboquant-kv-cache-b10726-407f323
+	source = llama.cpp-cuda-tqp::git+https://github.com/TheTom/llama-cpp-turboquant.git#tag=feature-turboquant-kv-cache-b10760-4deec55
+	source = 0001-add-d512-fattn.patch::https://github.com/TheTom/llama-cpp-turboquant/commit/bef37276ba00a16ffa68d9a9de5f690df3e33458.patch
 	source = llama.cpp.conf
 	source = llama.cpp.service
-	sha256sums = 2ec5344fb892ca7d23e14d649bfd69eb164e1bbcbd46a27df4c4cc7b3b586f89
+	sha256sums = abfba16f0724d076e66479c3afc7801e894103426a1352230326aaad52b4d84d
+	sha256sums = f54467cd55e6dd4c8208509b46d1e9985f0cd7b08b8d8df619ef2c5b13e2a22b
 	sha256sums = 53fa70cfe40cb8a3ca432590e4f76561df0f129a31b121c9b4b34af0da7c4d87
 	sha256sums = 0377d08a07bda056785981d3352ccd2dbc0387c4836f91fb73e6b790d836620d
 
