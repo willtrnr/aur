@@ -2,7 +2,7 @@
 
 pkgname=wsl-vpnkit
 # renovate: datasource=github-releases depName=containers/gvisor-tap-vsock
-pkgver=0.8.9
+pkgver=0.9.0
 pkgrel=1
 pkgdesc='Provides network connectivity to WSL 2 when blocked by VPN'
 arch=('x86_64')
