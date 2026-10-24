@@ -1,7 +1,7 @@
 pkgbase = archwill-mirrorlist
 	pkgdesc = Archwill repository mirrorlist
 	pkgver = 20261024
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/willtrnr/aur
 	arch = any
 	groups = archwill

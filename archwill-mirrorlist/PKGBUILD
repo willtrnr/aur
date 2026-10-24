@@ -3,7 +3,7 @@
 pkgbase=archwill-mirrorlist
 pkgname=('archwill-mirrorlist' 'archwill-v3-mirrorlist' 'archwill-v4-mirrorlist')
 pkgver=20261024
-pkgrel=1
+pkgrel=2
 pkgdesc="Archwill repository mirrorlist"
 arch=('any')
 url='https://github.com/willtrnr/aur'
@@ -22,12 +22,12 @@ package_archwill-v3-mirrorlist() {
   backup=("etc/pacman.d/$pkgname")  # to keep possibly ranked mirrorlist
 
   install -Dm644 "$srcdir/$pkgbase" "$pkgdir/etc/pacman.d/$pkgname"
-  sed -i 's|/$arch/|/$arch_v3/|g' "$pkgdir/etc/pacman.d/$pkgname"
+  sed -i 's|/$arch|/$arch_v3|g' "$pkgdir/etc/pacman.d/$pkgname"
 }
 
 package_archwill-v4-mirrorlist() {
   backup=("etc/pacman.d/$pkgname")  # to keep possibly ranked mirrorlist
 
   install -Dm644 "$srcdir/$pkgbase" "$pkgdir/etc/pacman.d/$pkgname"
-  sed -i 's|/$arch/|/$arch_v4/|g' "$pkgdir/etc/pacman.d/$pkgname"
+  sed -i 's|/$arch|/$arch_v4|g' "$pkgdir/etc/pacman.d/$pkgname"
 }
