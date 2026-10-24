@@ -1,0 +1,19 @@
+pkgbase = archwill-mirrorlist
+	pkgdesc = Archwill repository mirrorlist
+	pkgver = 20261024
+	pkgrel = 1
+	url = https://github.com/willtrnr/aur
+	arch = any
+	groups = archwill
+	license = MIT
+	source = archwill-mirrorlist
+	sha256sums = f0e4420979a06a9b3368b4f03d720e7892521a76b8d568c4cee6d7823f94f013
+
+pkgname = archwill-mirrorlist
+	backup = etc/pacman.d/archwill-mirrorlist
+
+pkgname = archwill-v3-mirrorlist
+	backup = etc/pacman.d/archwill-v3-mirrorlist
+
+pkgname = archwill-v4-mirrorlist
+	backup = etc/pacman.d/archwill-v4-mirrorlist

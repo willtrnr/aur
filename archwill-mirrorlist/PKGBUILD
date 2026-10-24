@@ -1,0 +1,33 @@
+# Maintainer: William Turner <willtur.will@gmail.com>
+
+pkgbase=archwill-mirrorlist
+pkgname=('archwill-mirrorlist' 'archwill-v3-mirrorlist' 'archwill-v4-mirrorlist')
+pkgver=20261024
+pkgrel=1
+pkgdesc="Archwill repository mirrorlist"
+arch=('any')
+url='https://github.com/willtrnr/aur'
+license=('MIT')
+groups=(archwill)
+source=("$pkgbase")
+sha256sums=('f0e4420979a06a9b3368b4f03d720e7892521a76b8d568c4cee6d7823f94f013')
+
+package_archwill-mirrorlist() {
+  backup=("etc/pacman.d/$pkgname")  # to keep possibly ranked mirrorlist
+
+  install -Dm644 "$srcdir/$pkgbase" "$pkgdir/etc/pacman.d/$pkgname"
+}
+
+package_archwill-v3-mirrorlist() {
+  backup=("etc/pacman.d/$pkgname")  # to keep possibly ranked mirrorlist
+
+  install -Dm644 "$srcdir/$pkgbase" "$pkgdir/etc/pacman.d/$pkgname"
+  sed -i 's|/$arch/|/$arch_v3/|g' "$pkgdir/etc/pacman.d/$pkgname"
+}
+
+package_archwill-v4-mirrorlist() {
+  backup=("etc/pacman.d/$pkgname")  # to keep possibly ranked mirrorlist
+
+  install -Dm644 "$srcdir/$pkgbase" "$pkgdir/etc/pacman.d/$pkgname"
+  sed -i 's|/$arch/|/$arch_v4/|g' "$pkgdir/etc/pacman.d/$pkgname"
+}
